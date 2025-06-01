@@ -1,0 +1,30 @@
+import { PrimaryGeneratedColumn } from 'typeorm';
+import type { AbstractDto } from './dto/abstract.dto.ts';
+
+export abstract class AbstractEntity<
+  DTO extends AbstractDto = AbstractDto,
+  O = never,
+> {
+  @PrimaryGeneratedColumn('increment')
+  id!: number;
+
+  uuid?: Uuid;
+
+  createdAt?: Date;
+
+  updatedAt?: Date;
+
+  deletedAt?: Date | null;
+
+  toDto(options?: O): DTO {
+    const dtoClass = Object.getPrototypeOf(this).dtoClass;
+
+    if (!dtoClass) {
+      throw new Error(
+        `You need to use @UseDto on class (${this.constructor.name}) be able to call toDto function`,
+      );
+    }
+
+    return new dtoClass(this, options);
+  }
+}
