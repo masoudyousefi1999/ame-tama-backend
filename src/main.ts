@@ -42,7 +42,15 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   app.use(
     cors({
       credentials: true,
-      origin: 'http://localhost:3000',
+      origin: [
+        'http://localhost:3000',
+        'https://ame-tama.com',
+        'https://ame-tama.com/',
+        'https://www.ame-tama.com',
+        'https://www.ame-tama.com/',
+        'https://api.ame-tama.com',
+        'https://api.ame-tama.com/',
+      ],
     }),
   );
 
