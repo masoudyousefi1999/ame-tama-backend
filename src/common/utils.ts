@@ -105,7 +105,8 @@ export async function connectToRedis(
   try {
     const client = createClient({
       socket: { host, port },
-      ...(username && password ? { username, password } : {}),
+      ...(username ? { username } : {}),
+      ...(password ? { password } : {}),
     });
 
     await client.connect();
