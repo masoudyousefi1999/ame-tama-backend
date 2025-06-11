@@ -48,4 +48,12 @@ export class AuthController {
   getCurrentUser(@AuthUser() user: UserEntity): UserDto {
     return user.toDto();
   }
+
+  @Get('is-admin')
+  @HttpCode(HttpStatus.OK)
+  @Auth([RoleType.ADMIN])
+  @ApiOkResponse({ type: Boolean })
+  isAdmin(@AuthUser() user: UserEntity): boolean {
+    return user?.role === 'ADMIN';
+  }
 }

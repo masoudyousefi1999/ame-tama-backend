@@ -195,7 +195,7 @@ export class AuthService {
 
   async sendOtp(sendOtpDto: SendOtpDto) {
     const { phone } = sendOtpDto;
-    const otpCode = generateOtp(5);
+    const otpCode = generateOtp(4);
 
     let isSmsSended = null;
 

@@ -5,10 +5,10 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import type {
-  FindOptionsRelationByString,
-  FindOptionsRelations,
-  FindOptionsWhere,
+import {
+  type FindOptionsRelationByString,
+  type FindOptionsRelations,
+  type FindOptionsWhere,
 } from 'typeorm';
 import { UserEntity } from './user.entity.ts';
 import { UserRepository } from './user.repository.ts';
@@ -109,5 +109,17 @@ export class UserService {
     }
 
     return user.toDto()!;
+  }
+
+  async getUsers() {
+    const users = await this.userRepository.find({
+      order: { createdAt: 'desc' },
+    });
+
+    if (users.length === 0) {
+      return [];
+    }
+
+    return users.map((item) => item.toDto());
   }
 }

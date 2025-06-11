@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Patch,
@@ -14,6 +15,7 @@ import { UserEntity } from './user.entity';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { RoleType } from '../../constants/role-type';
 
 @Controller('users')
 @ApiTags('users')
@@ -46,5 +48,15 @@ export class UserController {
     @Body() UpdateUserDto: UpdateUserDto,
   ) {
     return await this.userService.updateUser(user, UpdateUserDto);
+  }
+
+  @Get()
+  @Auth([RoleType.ADMIN])
+  @ApiOkResponse({
+    type: [UserDto],
+  })
+  @HttpCode(HttpStatus.OK)
+  async getUsers() {
+    return await this.userService.getUsers();
   }
 }

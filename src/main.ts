@@ -24,13 +24,13 @@ import { ApiConfigService } from './shared/services/api-config.service.ts';
 import { TranslationService } from './shared/services/translation.service.ts';
 import { SharedModule } from './shared/shared.module.ts';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 export async function bootstrap(): Promise<NestExpressApplication> {
   initializeTransactionalContext();
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
     new ExpressAdapter(),
-    { cors: true },
   );
   app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
   app.use(helmet());
@@ -39,6 +39,12 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   app.use(morgan('combined'));
   app.use(cookieParser());
   app.enableVersioning();
+  app.use(
+    cors({
+      credentials: true,
+      origin: 'http://localhost:3000',
+    }),
+  );
 
   const reflector = app.get(Reflector);
 

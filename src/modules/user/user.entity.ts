@@ -1,8 +1,11 @@
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
+  UpdateDateColumn,
   VirtualColumn,
   type Relation,
 } from 'typeorm';
@@ -14,9 +17,24 @@ import { MediaEntity } from '../../modules/media/media.entity.ts';
 
 @Entity({ name: 'users' })
 @UseDto(UserDto)
-export class UserEntity extends AbstractEntity<UserDto> {
+export class UserEntity extends AbstractEntity {
   @Column({ type: 'uuid', default: () => 'uuid_generate_v4()' })
   declare uuid: Uuid;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+  })
+  declare createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+  })
+  declare updatedAt: Date;
+
+  @DeleteDateColumn({
+    type: 'timestamp',
+  })
+  declare deletedAt: Date | null;
 
   @Column({ nullable: true, type: 'varchar' })
   firstName!: string | null;

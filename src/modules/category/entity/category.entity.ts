@@ -7,6 +7,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   UpdateDateColumn,
   type Relation,
 } from 'typeorm';
@@ -46,10 +47,16 @@ export class CategoryEntity extends AbstractEntity {
   @Column({ type: 'bigint' })
   image?: number;
 
-  @Column({type: 'bigint'})
+  @Column({ type: 'bigint' })
   parentId?: number;
 
-  @ManyToOne(() => MediaEntity)
+  @ManyToOne(() => MediaEntity, { nullable: true })
   @JoinColumn({ name: 'image', referencedColumnName: 'id' })
   media?: Relation<MediaEntity>;
+
+  @ManyToOne(() => CategoryEntity, (category) => category.children)
+  parent?: CategoryEntity;
+
+  @OneToMany(() => CategoryEntity, (category) => category.parent)
+  children?: CategoryEntity[];
 }

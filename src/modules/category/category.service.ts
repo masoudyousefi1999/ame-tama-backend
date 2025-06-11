@@ -7,7 +7,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryRepository } from './category.repository';
 import { MediaService } from '../../modules/media/media.service';
-import { IsNull, type FindOptionsWhere } from 'typeorm';
+import { type FindOptionsWhere } from 'typeorm';
 import type { CategoryEntity } from './entity/category.entity';
 
 @Injectable()
@@ -56,21 +56,15 @@ export class CategoryService {
   }
 
   async findAll() {
-    const categories = await this.categoryRepository.find({
-      filter: { deletedAt: IsNull() },
-      relations: ['media'],
-    });
-    if (categories.length === 0) {
-      return [];
-    }
+    const categories = await this.categoryRepository.findAll();
 
-    return categories.map((category) => category.toDto());
+    return categories?.map((item) => item.toDto());
   }
 
   async findOne(slug: string) {
     const category = await this.categoryRepository.findOne({
       filter: { slug },
-      relations: ['media'],
+      relations: ['media', 'children', 'children.media', 'parent'],
     });
 
     if (!category) {

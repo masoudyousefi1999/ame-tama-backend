@@ -33,7 +33,7 @@ export class OrderService {
 
     const order = await this.orderRepo.findOne({
       filter: { userId: user.id, status: OrderStatusEnum.OPEN },
-      ...(relationFetch ? { relations: ['items', 'items.product'] } : {}),
+      ...(relationFetch ? { relations: ['items', 'items.product', 'items.product.productMedia', 'items.product.productMedia.media'] } : {}),
     });
 
     if (order) {

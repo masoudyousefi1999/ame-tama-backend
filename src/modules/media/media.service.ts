@@ -21,10 +21,7 @@ export class MediaService {
   async uploadFile(file: IFile, createMediaDto: CreateMediaDto) {
     const { type: fileType } = createMediaDto;
 
-    const uploadedFile = await this.awsService.uploadImage(
-      file,
-      fileType as any,
-    );
+    const uploadedFile = await this.awsService.uploadImage(file, fileType || 1);
 
     if ('error' in uploadedFile) {
       console.error(uploadedFile.error);

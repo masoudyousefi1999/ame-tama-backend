@@ -162,7 +162,7 @@ export class ProductService {
     };
 
     await Promise.all(
-      infos.map(async (item) => {
+      infos?.map(async (item) => {
         const { mediaId, order, isDefault = false } = item;
         try {
           const media = await this.mediaService.getMedia({
@@ -269,7 +269,7 @@ export class ProductService {
       filter: { deletedAt: IsNull() },
       limit,
       page,
-      relations: ['productMedia', 'productMedia.media'],
+      relations: ['productMedia', 'productMedia.media', 'category'],
       order: { updatedAt: 'desc' },
     });
 
