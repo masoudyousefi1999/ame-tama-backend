@@ -8,6 +8,7 @@ import { createClient, type RedisClientType } from 'redis';
  * @returns {string}
  */
 export function generateHash(password: string): string {
+  console.log('generating hash');
   return bcrypt.hashSync(password, 10);
 }
 

@@ -194,39 +194,48 @@ export class AuthService {
   }
 
   async sendOtp(sendOtpDto: SendOtpDto) {
-    const { phone } = sendOtpDto;
-    const otpCode = generateOtp(4);
-
-    let isSmsSended = null;
-
     try {
-      isSmsSended = await sendSms(phone, otpCode);
-    } catch (error) {
-      console.log(error);
-      isSmsSended = null;
-    }
+      const { phone } = sendOtpDto;
+      const otpCode = generateOtp(4);
 
-    if (!isSmsSended) {
-      return false;
-    }
+      let isSmsSended = null;
 
-    const hashedOtp = generateHash(otpCode);
-
-    const isCached = await this.redisService.cacheData(phone, hashedOtp, 120); // 2 minutes
-
-    if (!isCached) {
-      const isOtpExist = await this.otpRepository.findOne({
-        filter: { phone },
-      });
-
-      if (isOtpExist) {
-        await this.otpRepository.delete({ phone });
+      try {
+        isSmsSended = await sendSms(phone, otpCode);
+        console.log('is sms send => ', isSmsSended);
+      } catch (error) {
+        console.log(error);
+        isSmsSended = null;
       }
 
-      await this.otpRepository.create({ otpCode: hashedOtp, phone });
-    }
+      if (!isSmsSended) {
+        return false;
+      }
 
-    return true;
+      const hashedOtp = generateHash(otpCode);
+
+      console.log('data cached to redis => ', phone, ' ', hashedOtp);
+      const isCached = await this.redisService.cacheData(phone, hashedOtp, 120); // 2 minutes
+
+      if (!isCached) {
+        console.log('no redis founded hashing in db');
+        const isOtpExist = await this.otpRepository.findOne({
+          filter: { phone },
+        });
+
+        if (isOtpExist) {
+          await this.otpRepository.delete({ phone });
+        }
+
+        await this.otpRepository.create({ otpCode: hashedOtp, phone });
+      }
+
+      console.log('everithing is okey and returning true ');
+      return true;
+    } catch (err) {
+      console.dir({ message: 'error on sending otp : ', err }, { depth: null });
+      return false;
+    }
   }
 
   async validateOtp(phone: string, otp: string): Promise<boolean> {
