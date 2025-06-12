@@ -2,6 +2,7 @@ import { OtpRepository } from './otp.repository';
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -202,7 +203,9 @@ export class AuthService {
 
       try {
         isSmsSended = await sendSms(phone, otpCode);
-        console.log('is sms send => ', isSmsSended);
+        if (!isSmsSended?.data) {
+          throw new InternalServerErrorException(isSmsSended);
+        }
       } catch (error) {
         console.log(error);
         isSmsSended = null;
@@ -214,11 +217,9 @@ export class AuthService {
 
       const hashedOtp = generateHash(otpCode);
 
-      console.log('data cached to redis => ', phone, ' ', hashedOtp);
       const isCached = await this.redisService.cacheData(phone, hashedOtp, 120); // 2 minutes
 
       if (!isCached) {
-        console.log('no redis founded hashing in db');
         const isOtpExist = await this.otpRepository.findOne({
           filter: { phone },
         });
@@ -230,10 +231,8 @@ export class AuthService {
         await this.otpRepository.create({ otpCode: hashedOtp, phone });
       }
 
-      console.log('everithing is okey and returning true ');
       return true;
     } catch (err) {
-      console.dir({ message: 'error on sending otp : ', err }, { depth: null });
       return false;
     }
   }

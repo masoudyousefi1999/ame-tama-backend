@@ -20,9 +20,9 @@ const providers: Provider[] = [
   {
     provide: REDIS_CLIENT,
     useFactory: async (config: ApiConfigService) => {
-      const { host, password, port, username } = config.redisConfigs;
+      const { url } = config.redisConfigs;
 
-      return await connectToRedis({ host, port, password, username });
+      return await connectToRedis({ url });
     },
     inject: [ApiConfigService],
   },

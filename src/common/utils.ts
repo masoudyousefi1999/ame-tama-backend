@@ -8,7 +8,6 @@ import { createClient, type RedisClientType } from 'redis';
  * @returns {string}
  */
 export function generateHash(password: string): string {
-  console.log('generating hash');
   return bcrypt.hashSync(password, 10);
 }
 
@@ -95,19 +94,15 @@ export function getFileUrl(
 
 export async function connectToRedis(
   options: {
-    host: string;
-    port: number;
-    username?: string;
-    password?: string;
+    url: string;
   },
   retry: number = 5,
 ): Promise<RedisClientType | void> {
-  const { host, port, password, username } = options;
+  const { url } = options;
+
   try {
     const client = createClient({
-      socket: { host, port },
-      ...(username ? { username } : {}),
-      ...(password ? { password } : {}),
+      url,
     });
 
     await client.connect();
