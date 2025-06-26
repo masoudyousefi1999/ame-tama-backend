@@ -49,7 +49,7 @@ export class AuthController {
     return user.toDto();
   }
 
-  @Get('is-admin')
+  @Post('is-admin')
   @HttpCode(HttpStatus.OK)
   @Auth([RoleType.ADMIN])
   @ApiOkResponse({ type: Boolean })
