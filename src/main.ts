@@ -3,6 +3,7 @@ import './boilerplate.polyfill';
 import {
   ClassSerializerInterceptor,
   HttpStatus,
+  Logger,
   UnprocessableEntityException,
   ValidationPipe,
 } from '@nestjs/common';
@@ -25,6 +26,7 @@ import { TranslationService } from './shared/services/translation.service.ts';
 import { SharedModule } from './shared/shared.module.ts';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import type { NextFunction, Request, Response } from 'express';
 
 export async function bootstrap(): Promise<NestExpressApplication> {
   initializeTransactionalContext();
@@ -33,26 +35,70 @@ export async function bootstrap(): Promise<NestExpressApplication> {
     new ExpressAdapter(),
   );
   app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
-  app.use(helmet());
   // app.setGlobalPrefix('/api'); use api as global prefix if you don't have subdomain
   app.use(compression());
   app.use(morgan('combined'));
   app.use(cookieParser());
   app.enableVersioning();
+
   app.use(
-    cors({
-      credentials: true,
-      origin: [
-        'http://localhost:3000',
-        'https://ame-tama.com',
-        'https://ame-tama.com/',
-        'https://www.ame-tama.com',
-        'https://www.ame-tama.com/',
-        'https://api.ame-tama.com',
-        'https://api.ame-tama.com/',
-      ],
+    helmet({
+      crossOriginEmbedderPolicy: false,
+      contentSecurityPolicy: {
+        directives: {
+          imgSrc: [
+            `'self'`,
+            'data:',
+            'apollo-server-landing-page.cdn.apollographql.com',
+          ],
+          scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
+          manifestSrc: [
+            `'self'`,
+            'apollo-server-landing-page.cdn.apollographql.com',
+          ],
+          frameSrc: [`'self'`, 'sandbox.embed.apollographql.com'],
+        },
+      },
     }),
   );
+
+  let corsOrigin: string | string[] = process.env.CORS_ENV || '*';
+
+  corsOrigin.split(',').map((value: string) => value.trim());
+
+  if (corsOrigin.length === 1) {
+    if (corsOrigin[0] === '*') {
+      corsOrigin = '*';
+    }
+  }
+
+  const corsOptions: cors.CorsOptions = {
+    credentials: true,
+    origin: (origin, callback) => {
+      if (corsOrigin.includes(origin || '') || corsOrigin === '*') {
+        callback(null, true);
+      } else {
+        Logger.error(
+          `CORS policy does not allow access from origin: ${origin}`,
+        );
+        callback(
+          new Error(`CORS policy does not allow access from origin: ${origin}`),
+        );
+      }
+    },
+  };
+
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    Logger.debug(
+      `Request Origin: ${req.headers.origin},
+       Method: ${req.method},
+       URL: ${req.url}`,
+    );
+    if (req.method === 'GET') {
+      return next();
+    }
+    cors(corsOptions)(req, res, next);
+  });
 
   const reflector = app.get(Reflector);
 
@@ -105,7 +151,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 
   const port = configService.appConfig.port;
 
-  await app.listen(port,'0.0.0.0');
+  await app.listen(port, '0.0.0.0');
   console.info(`server running on ${await app.getUrl()}`);
 
   return app;

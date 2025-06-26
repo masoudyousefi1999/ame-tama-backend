@@ -36,9 +36,11 @@ export class AuthService {
   setCookie(res: Response, name: string, value: string, maxAge: number) {
     res.cookie(name, value, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production', // Secure only in production
       maxAge,
-      sameSite: 'none',
+      domain:
+        process.env.NODE_ENV === 'production' ? '.ame-tama.com' : undefined, // Set domain for prod
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'Lax' for development to avoid issues
     });
   }
 
