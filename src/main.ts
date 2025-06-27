@@ -41,26 +41,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   app.use(cookieParser());
   app.enableVersioning();
 
-  app.use(
-    helmet({
-      crossOriginEmbedderPolicy: false,
-      contentSecurityPolicy: {
-        directives: {
-          imgSrc: [
-            `'self'`,
-            'data:',
-            'apollo-server-landing-page.cdn.apollographql.com',
-          ],
-          scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
-          manifestSrc: [
-            `'self'`,
-            'apollo-server-landing-page.cdn.apollographql.com',
-          ],
-          frameSrc: [`'self'`, 'sandbox.embed.apollographql.com'],
-        },
-      },
-    }),
-  );
+  app.use(helmet());
 
   let corsOrigin: string | string[] = process.env.CORS_ENV || '*';
 
