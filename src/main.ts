@@ -90,13 +90,20 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     Logger.debug(
-      `Request Origin: ${req.headers.origin},
-       Method: ${req.method},
-       URL: ${req.url}`,
+      `Request Origin: ${req?.headers?.origin},
+       Method: ${req?.method},
+       URL: ${req?.url}`,
     );
+
+    if (req.url === '/auth/is-admin') {
+      console.log('cookies are => ', req.cookies);
+      req.headers.origin = 'https://ame-tama.com';
+    }
+
     if (req.method === 'GET') {
       return next();
     }
+
     cors(corsOptions)(req, res, next);
   });
 
