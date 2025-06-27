@@ -95,11 +95,6 @@ export async function bootstrap(): Promise<NestExpressApplication> {
        URL: ${req?.url}`,
     );
 
-    if (req.url === '/auth/is-admin') {
-      console.log('cookies are => ', req.cookies);
-      req.headers.origin = 'https://ame-tama.com';
-    }
-
     if (req.method === 'GET') {
       return next();
     }
