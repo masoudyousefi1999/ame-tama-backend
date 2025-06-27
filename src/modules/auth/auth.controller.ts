@@ -51,7 +51,7 @@ export class AuthController {
 
   @Post('is-admin')
   @HttpCode(HttpStatus.OK)
-  @Auth([RoleType.ADMIN])
+  @Auth([])
   @ApiOkResponse({ type: Boolean })
   isAdmin(@AuthUser() user: UserEntity): boolean {
     return user?.role === 'ADMIN';
