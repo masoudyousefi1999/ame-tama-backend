@@ -43,20 +43,14 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 
   app.use(helmet());
 
-  let corsOrigin: string | string[] = process.env.CORS_ENV || '*';
-
-  corsOrigin.split(',').map((value: string) => value.trim());
-
-  if (corsOrigin.length === 1) {
-    if (corsOrigin[0] === '*') {
-      corsOrigin = '*';
-    }
-  }
-
+  let corsOrigin: string[] = (process.env.CORS_ENV || '*')
+  .split(',')
+  .map((value) => value.trim());
+  
   const corsOptions: cors.CorsOptions = {
     credentials: true,
     origin: (origin, callback) => {
-      if (corsOrigin.includes(origin || '') || corsOrigin === '*') {
+      if (corsOrigin.includes('*') || corsOrigin.includes(origin || '')) {
         callback(null, true);
       } else {
         Logger.error(
@@ -69,19 +63,16 @@ export async function bootstrap(): Promise<NestExpressApplication> {
     },
   };
 
-  app.use((req: Request, res: Response, next: NextFunction) => {
+  app.use((req: Request, _res: Response, next: NextFunction) => {
     Logger.debug(
       `Request Origin: ${req?.headers?.origin},
        Method: ${req?.method},
        URL: ${req?.url}`,
     );
-
-    if (req.method === 'GET') {
-      return next();
-    }
-
-    cors(corsOptions)(req, res, next);
+    next();
   });
+
+  app.use(cors(corsOptions));
 
   const reflector = app.get(Reflector);
 
