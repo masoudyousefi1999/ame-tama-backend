@@ -39,6 +39,8 @@ export class AuthService {
       secure: true,
       maxAge,
       sameSite: 'none',
+      domain:
+        process.env.NODE_ENV === 'production' ? '.ame-tama.com' : 'localhost',
     });
   }
 
