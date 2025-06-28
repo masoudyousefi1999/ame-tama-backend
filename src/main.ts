@@ -50,7 +50,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   const corsOptions: cors.CorsOptions = {
     credentials: true,
     origin: (origin, callback) => {
-      if (corsOrigin.includes('*') || corsOrigin.includes(origin || '')) {
+      if (corsOrigin.includes('*') || corsOrigin.includes(origin || '') || !origin) {
         callback(null, true);
       } else {
         Logger.error(
