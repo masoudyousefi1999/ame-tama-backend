@@ -11,7 +11,7 @@ import { ChangeOrderItemDto } from '../dto/change-order-item.dto';
 import { OrderItemService } from './order-item.service';
 import { ProductService } from '../../../modules/product/product.service';
 import type { OrderEntity } from '../entity/order.entity';
-import { type FindOptionsWhere } from 'typeorm';
+import { Not, type FindOptionsWhere } from 'typeorm';
 import { WalletService } from '../../../modules/wallet/wallet.service';
 import { PaymentEntity } from '../../../modules/payment/entity/payment.entity';
 import type { OrderDto } from '../dto/order.dto';
@@ -195,7 +195,7 @@ export class OrderService {
   ) {
     const { limit, page } = paginationDto;
     const { document, count } = await this.orderRepo.find({
-      filter: { userId: user.id, ...(status ? { status } : {}) },
+      filter: { userId: user.id, ...(status ? { status } : {status: Not(OrderStatusEnum.OPEN)}) },
       limit,
       page,
       relations: [
