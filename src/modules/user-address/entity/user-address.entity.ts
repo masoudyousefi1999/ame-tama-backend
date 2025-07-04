@@ -8,6 +8,7 @@ import {
   JoinColumn,
   ManyToOne,
   UpdateDateColumn,
+  type Relation,
 } from 'typeorm';
 import { UserAddressDto } from '../dto/user-address.dto';
 import { UserEntity } from '../../../modules/user/user.entity';
@@ -54,7 +55,10 @@ export class UserAddressEntity extends AbstractEntity {
   @Column({ type: 'text' })
   floorNumber!: string;
 
-  @ManyToOne(() => UserEntity)
+  @Column({ type: 'boolean', default: false })
+  default!: boolean;
+
+  @ManyToOne(() => UserEntity, (user) => user.addresses)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
-  user?: UserEntity;
+  user?: Relation<UserEntity>;
 }

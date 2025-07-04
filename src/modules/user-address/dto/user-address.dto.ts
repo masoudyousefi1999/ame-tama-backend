@@ -1,5 +1,5 @@
 import {
-  ClassFieldOptional,
+  BooleanField,
   StringField,
   StringFieldOptional,
 } from '../../../decorators/field.decorators';
@@ -26,7 +26,9 @@ export class UserAddressDto extends AbstractDto {
   @StringFieldOptional()
   floorNumber?: string;
 
-  @ClassFieldOptional(() => UserDto)
+  @BooleanField()
+  default!: boolean;
+
   user?: UserDto;
 
   constructor(entity: UserAddressEntity) {
@@ -37,6 +39,7 @@ export class UserAddressDto extends AbstractDto {
     this.postalCode = entity.postalCode;
     this.houseNumber = entity.houseNumber;
     this.floorNumber = entity.floorNumber;
+    this.default = entity.default;
     this.user = entity.user ? new UserDto(entity.user) : undefined;
   }
 }

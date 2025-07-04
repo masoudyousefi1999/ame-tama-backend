@@ -5,6 +5,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   UpdateDateColumn,
   VirtualColumn,
   type Relation,
@@ -14,6 +15,7 @@ import { RoleType } from '../../constants/role-type.ts';
 import { UseDto } from '../../decorators/use-dto.decorator.ts';
 import { UserDto } from './dtos/user.dto.ts';
 import { MediaEntity } from '../../modules/media/media.entity.ts';
+import { UserAddressEntity } from '../../modules/user-address/entity/user-address.entity.ts';
 
 @Entity({ name: 'users' })
 @UseDto(UserDto)
@@ -66,4 +68,9 @@ export class UserEntity extends AbstractEntity {
   @ManyToOne(() => MediaEntity, { eager: true })
   @JoinColumn({ name: 'avatar', referencedColumnName: 'id' })
   media?: Relation<MediaEntity>;
+
+  @OneToMany(() => UserAddressEntity, (address) => address.user, {
+    cascade: true,
+  })
+  addresses!: Relation<UserAddressEntity[]>;
 }

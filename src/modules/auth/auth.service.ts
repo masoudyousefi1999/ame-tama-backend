@@ -119,7 +119,8 @@ export class AuthService {
         1000 * 60 * 60 * 24 * 30,
       );
 
-      return res.json({ user: isUserExist, token });
+      res.json({ user: isUserExist, token });
+      return;
     } else if (isUserExist && method === 'otp' && !password) {
       const isOtpValid = await this.validateOtp(isUserExist.phone!, otp!);
 
@@ -139,7 +140,8 @@ export class AuthService {
         1000 * 60 * 60 * 24 * 30,
       );
 
-      return res.json({ user: isUserExist, token });
+      res.json({ user: isUserExist, token });
+      return;
     } else if (isUserExist && method === 'otp' && password) {
       if (!password) {
         throw new BadRequestException(
@@ -168,7 +170,8 @@ export class AuthService {
         1000 * 60 * 60 * 24 * 30,
       );
 
-      return res.json({ user: isUserExist, token });
+      res.json({ user: isUserExist, token });
+      return;
     } else if (!isUserExist && method === 'otp') {
       const user = await this.userService.createUser({ phone: phone! });
 
@@ -190,7 +193,8 @@ export class AuthService {
         1000 * 60 * 60 * 24 * 30,
       );
 
-      return res.json({ user: isUserExist, token });
+      res.json({ user: isUserExist, token });
+      return;
     }
 
     throw new UnauthorizedException('email or password is not correct..');

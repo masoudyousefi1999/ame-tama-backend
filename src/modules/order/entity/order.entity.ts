@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   UpdateDateColumn,
   type Relation,
@@ -12,6 +13,7 @@ import {
 import { OrderDto } from '../dto/order.dto';
 import { OrderStatusEnum } from '../enum/order-status.enum';
 import { OrderItemEntity } from './order-item.entity';
+import { UserAddressEntity } from '../../../modules/user-address/entity/user-address.entity';
 
 @Entity({ name: 'orders' })
 @UseDto(OrderDto)
@@ -41,7 +43,14 @@ export class OrderEntity extends AbstractEntity {
   @Column({ type: 'enum', enum: OrderStatusEnum })
   status!: OrderStatusEnum;
 
+  @Column({ type: 'bigint' })
+  addressId?: number;
+
   @OneToMany(() => OrderItemEntity, (item) => item.order)
   @JoinColumn({ name: 'id', referencedColumnName: 'order_id' })
   items?: Relation<OrderItemEntity[]>;
+
+  @ManyToOne(() => UserAddressEntity)
+  @JoinColumn({ name: 'address_id', referencedColumnName: 'id' })
+  address?: Relation<UserAddressEntity>;
 }

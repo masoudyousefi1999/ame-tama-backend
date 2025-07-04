@@ -115,7 +115,7 @@ export class ProductService {
       });
     }
 
-    const products = await this.productRepo.find({
+    const { document: products, count } = await this.productRepo.find({
       filter: {
         categoryId: In(categoryIds),
       },
@@ -124,10 +124,12 @@ export class ProductService {
       relations: ['productMedia', 'productMedia.media'],
     });
 
-    return products.map((product) => {
+    const normalizedProducts = products.map((product) => {
       product.category = category;
       return product.toDto();
     });
+
+    return { products: normalizedProducts, totalCount: count };
   }
 
   async findOneProduct(
@@ -265,7 +267,7 @@ export class ProductService {
 
   async getProducts(paginationDto: PaginationDto) {
     const { limit, page } = paginationDto;
-    const products = await this.productRepo.find({
+    const { document: products, count } = await this.productRepo.find({
       filter: { deletedAt: IsNull() },
       limit,
       page,
@@ -273,7 +275,9 @@ export class ProductService {
       order: { updatedAt: 'desc' },
     });
 
-    return products.map((item) => item.toDto());
+    const normalizedProducts = products.map((item) => item.toDto());
+
+    return { products: normalizedProducts, totalCount: count };
   }
 
   async getSimilarProducts(productId: Uuid, paginationDto: PaginationDto) {
@@ -290,6 +294,13 @@ export class ProductService {
       ...paginationDto,
     });
 
-    return similarProducts.data?.map((item) => item.toDto());
+    const normalizedSimilar = similarProducts.products?.map((item) =>
+      item.toDto(),
+    );
+
+    return {
+      products: normalizedSimilar,
+      totalCount: similarProducts.totalCount,
+    };
   }
 }

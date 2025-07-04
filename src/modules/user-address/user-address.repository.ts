@@ -12,4 +12,13 @@ export class UserAddressRepository extends AbstractRepository<UserAddressEntity>
   ) {
     super(UserAddressRepo);
   }
+
+  async makeAllAddressDefaultFalse(userId: number) {
+    await this.repository.query(
+      'update "user_addresses" set "default" = false where user_id = $1::bigint',
+      [userId],
+    );
+
+    return;
+  }
 }

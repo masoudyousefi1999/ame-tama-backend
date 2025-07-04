@@ -88,11 +88,8 @@ export class ProductRepository extends AbstractRepository<ProductEntity> {
     }
 
     return {
-      data: items,
-      total,
-      page,
-      limit,
-      pageCount: Math.ceil(total / limit),
+      products: items,
+      totalCount: Math.ceil(total / limit),
     };
   }
 }

@@ -1,6 +1,8 @@
+import { UserAddressDto } from '../../../modules/user-address/dto/user-address.dto.ts';
 import { AbstractDto } from '../../../common/dto/abstract.dto.ts';
 import { RoleType } from '../../../constants/role-type.ts';
 import {
+  ClassFieldOptional,
   EmailFieldOptional,
   EnumFieldOptional,
   StringFieldOptional,
@@ -26,6 +28,9 @@ export class UserDto extends AbstractDto {
   @StringFieldOptional({ nullable: true })
   phone?: string | null;
 
+  @ClassFieldOptional(() => UserAddressDto)
+  addresses?: UserAddressDto[];
+
   constructor(user: UserEntity) {
     super(user);
     this.firstName = user.firstName;
@@ -34,5 +39,8 @@ export class UserDto extends AbstractDto {
     this.email = user.email;
     this.phone = user.phone;
     this.avatar = user?.media?.url;
+    this.addresses = user?.addresses?.length
+      ? user.addresses.map((i) => new UserAddressDto(i))
+      : [];
   }
 }

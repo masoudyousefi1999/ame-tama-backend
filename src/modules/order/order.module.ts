@@ -9,12 +9,14 @@ import { OrderItemRepository } from './repository/order-item.repository';
 import { OrderItemService } from './services/order-item.service';
 import { ProductModule } from '../../modules/product/product.module';
 import { WalletModule } from '../../modules/wallet/wallet.module';
+import { UserAddressModule } from '../../modules/user-address/user-address.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([OrderEntity, OrderItemEntity]),
     ProductModule,
     WalletModule,
+    UserAddressModule,
   ],
   controllers: [OrderController],
   providers: [

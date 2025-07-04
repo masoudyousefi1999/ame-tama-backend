@@ -93,7 +93,7 @@ export class OrderItemService {
   }
 
   async completeOrder(orderId: number) {
-    const items = await this.orderItemRepo.find({
+    const { document: items } = await this.orderItemRepo.find({
       filter: { orderId },
       relations: ['product'],
     });

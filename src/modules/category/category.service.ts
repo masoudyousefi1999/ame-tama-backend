@@ -133,6 +133,10 @@ export class CategoryService {
   }
 
   async findCategory(filter: FindOptionsWhere<CategoryEntity>) {
-    return await this.categoryRepository.find({ filter });
+    const { document, count: _ } = await this.categoryRepository.find({
+      filter,
+    });
+
+    return document;
   }
 }

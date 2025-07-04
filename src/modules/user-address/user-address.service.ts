@@ -24,9 +24,12 @@ export class UserAddressService {
 
     const userId = user.id;
 
+    await this.userAddressRepo.makeAllAddressDefaultFalse(userId);
+
     const address = await this.userAddressRepo.create({
       ...createUserAddressDto,
       userId,
+      default: true,
     });
 
     address.user = user;
@@ -41,7 +44,7 @@ export class UserAddressService {
 
     const userId = user.id;
 
-    const addresses = await this.userAddressRepo.find({
+    const { document: addresses, count } = await this.userAddressRepo.find({
       filter: { userId, deletedAt: IsNull() },
     });
 
@@ -49,7 +52,9 @@ export class UserAddressService {
       return [];
     }
 
-    return addresses.map((item) => item.toDto());
+    const normalizedAddresses = addresses.map((item) => item.toDto());
+
+    return { addresses: normalizedAddresses, totalCount: count };
   }
 
   async getAddress(addressId: Uuid, user: UserEntity) {
@@ -114,5 +119,11 @@ export class UserAddressService {
     });
 
     return true;
+  }
+
+  async getCurrentUserAddress(userId: number) {
+    return await this.userAddressRepo.findOne({
+      filter: { default: true, userId },
+    });
   }
 }

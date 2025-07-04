@@ -1,11 +1,20 @@
 import { ChangeOrderItemDto } from './dto/change-order-item.dto';
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  ParseEnumPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { OrderService } from './services/order.service';
 import { Auth } from '../../decorators/http.decorators';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import type { UserEntity } from '../../modules/user/user.entity';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { OrderDto } from './dto/order.dto';
+import { OrderStatusEnum } from './enum/order-status.enum';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('order')
 export class OrderController {
@@ -41,5 +50,19 @@ export class OrderController {
       user,
       changeOrderItemDto,
     );
+  }
+
+  @Auth([])
+  @Get('/history')
+  @ApiQuery({ name: 'status', required: false, enum: OrderStatusEnum })
+  @ApiQuery({ name: 'paginationDto', type: PaginationDto })
+  @ApiResponse({ type: [OrderDto] })
+  async getOrderHistory(
+    @AuthUser() user: UserEntity,
+    @Query('status', new ParseEnumPipe(OrderStatusEnum, { optional: true }))
+    status: OrderStatusEnum,
+    @Query('paginationDto') paginationDto: PaginationDto,
+  ) {
+    return await this.orderService.getOrderHistory(user, status, paginationDto);
   }
 }

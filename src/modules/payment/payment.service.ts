@@ -73,7 +73,10 @@ export class PaymentService {
     });
 
     if (payment) {
-      await this.orderService.pendingOrder({ orderId: payment.id });
+      await this.orderService.pendingOrder({
+        orderId: payment.orderId,
+        userId: user.id,
+      });
     }
 
     return startPay;
@@ -172,7 +175,7 @@ export class PaymentService {
 
       return paymentInfo;
     } catch (err) {
-        console.log(err)
+      console.log(err);
       if (currentTransaction.paymentId) {
         const payment = await this.paymentRepo.update({
           filter: { id: currentTransaction.paymentId },

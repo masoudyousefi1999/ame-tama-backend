@@ -1,3 +1,4 @@
+import { PaginationDto } from './../../../common/dto/pagination.dto';
 import {
   ForbiddenException,
   Injectable,
@@ -10,9 +11,11 @@ import { ChangeOrderItemDto } from '../dto/change-order-item.dto';
 import { OrderItemService } from './order-item.service';
 import { ProductService } from '../../../modules/product/product.service';
 import type { OrderEntity } from '../entity/order.entity';
-import type { FindOptionsWhere } from 'typeorm';
+import { type FindOptionsWhere } from 'typeorm';
 import { WalletService } from '../../../modules/wallet/wallet.service';
 import { PaymentEntity } from '../../../modules/payment/entity/payment.entity';
+import type { OrderDto } from '../dto/order.dto';
+import { UserAddressService } from '../../../modules/user-address/user-address.service';
 
 @Injectable()
 export class OrderService {
@@ -21,6 +24,7 @@ export class OrderService {
     private OrderItemService: OrderItemService,
     private productService: ProductService,
     private walletService: WalletService,
+    private userAddressService: UserAddressService,
   ) {}
 
   async getOrCreateOrder(
@@ -31,9 +35,29 @@ export class OrderService {
       throw new ForbiddenException();
     }
 
+    const isUserHavePendingOrder = await this.orderRepo.findOne({
+      filter: { status: OrderStatusEnum.PENDING },
+    });
+
+    if (isUserHavePendingOrder) {
+      await this.orderRepo.update({
+        filter: { id: isUserHavePendingOrder.id },
+        updateData: { status: OrderStatusEnum.OPEN, addressId: null as any },
+      });
+    }
+
     const order = await this.orderRepo.findOne({
       filter: { userId: user.id, status: OrderStatusEnum.OPEN },
-      ...(relationFetch ? { relations: ['items', 'items.product', 'items.product.productMedia', 'items.product.productMedia.media'] } : {}),
+      ...(relationFetch
+        ? {
+            relations: [
+              'items',
+              'items.product',
+              'items.product.productMedia',
+              'items.product.productMedia.media',
+            ],
+          }
+        : {}),
     });
 
     if (order) {
@@ -147,14 +171,49 @@ export class OrderService {
     return;
   }
 
-  async pendingOrder(data: { orderId: number }) {
-    const { orderId } = data;
+  async pendingOrder(data: { orderId: number; userId: number }) {
+    const { orderId, userId } = data;
+
+    const currentUserAddress =
+      await this.userAddressService.getCurrentUserAddress(userId);
 
     await this.orderRepo.update({
       filter: { id: orderId },
-      updateData: { status: OrderStatusEnum.PENDING },
+      updateData: {
+        status: OrderStatusEnum.PENDING,
+        addressId: currentUserAddress?.id,
+      },
     });
 
     return;
+  }
+
+  async getOrderHistory(
+    user: UserEntity,
+    status: OrderStatusEnum,
+    paginationDto: PaginationDto,
+  ) {
+    const { limit, page } = paginationDto;
+    const { document, count } = await this.orderRepo.find({
+      filter: { userId: user.id, ...(status ? { status } : {}) },
+      limit,
+      page,
+      relations: [
+        'items',
+        'items.product',
+        'items.product.productMedia',
+        'items.product.productMedia.media',
+        'address',
+      ],
+    });
+
+    const normalizedOrders: OrderDto[] = [];
+
+    document.map((order) => {
+      const orderDto = order.toDto() as unknown as OrderDto;
+      normalizedOrders.push(orderDto);
+    });
+
+    return { orders: normalizedOrders, totalCount: count };
   }
 }

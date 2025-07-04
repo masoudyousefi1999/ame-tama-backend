@@ -112,14 +112,17 @@ export class UserService {
   }
 
   async getUsers() {
-    const users = await this.userRepository.find({
+    const { document: users, count } = await this.userRepository.find({
       order: { createdAt: 'desc' },
+      relations: ['addresses']
     });
 
     if (users.length === 0) {
       return [];
     }
 
-    return users.map((item) => item.toDto());
+    const normalizedUsers = users.map((item) => item.toDto());
+
+    return { users: normalizedUsers, totalCount: count };
   }
 }

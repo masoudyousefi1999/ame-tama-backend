@@ -9,5 +9,6 @@ import { UserAddressRepository } from './user-address.repository';
   imports: [TypeOrmModule.forFeature([UserAddressEntity])],
   providers: [UserAddressService, UserAddressRepository],
   controllers: [UserAddressController],
+  exports: [UserAddressService],
 })
 export class UserAddressModule {}

@@ -63,15 +63,17 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
     page?: number;
     limit?: number;
     order?: FindOptionsOrder<T>;
-  }): Promise<T[]> {
+  }): Promise<{ document: T[]; count: number }> {
     const skip = (page - 1) * limit;
-    return await this.repository.find({
+    const [document, count] = await this.repository.findAndCount({
       where: filter,
       relations,
       skip,
       take: limit,
       order,
     });
+
+    return { document, count };
   }
 
   /**

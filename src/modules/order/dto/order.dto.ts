@@ -1,3 +1,4 @@
+import { UserAddressDto } from '../../../modules/user-address/dto/user-address.dto';
 import { AbstractDto } from '../../../common/dto/abstract.dto';
 import {
   ClassFieldOptional,
@@ -21,6 +22,9 @@ export class OrderDto extends AbstractDto {
   @ClassFieldOptional(() => OrderItemDto, { each: true })
   items?: OrderItemDto[];
 
+  @ClassFieldOptional(() => UserAddressDto)
+  address?: UserAddressDto;
+
   constructor(entity: OrderEntity) {
     super(entity);
     this.totalPrice = entity.totalPrice;
@@ -29,5 +33,8 @@ export class OrderDto extends AbstractDto {
     this.items = entity?.items
       ? entity.items.map((item) => new OrderItemDto(item))
       : [];
+    this.address = entity?.address
+      ? new UserAddressDto(entity.address)
+      : undefined;
   }
 }
