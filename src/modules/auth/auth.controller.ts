@@ -34,6 +34,15 @@ export class AuthController {
     return await this.authService.registerUser(userRegisterDto, res);
   }
 
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Successfully logout' })
+  async logout(
+    @Res() res: Response,
+  ) {
+    return await this.authService.logout(res);
+  }
+
   @Post('otp')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: UserDto, description: 'Successfully Registered' })

@@ -287,4 +287,10 @@ export class AuthService {
 
     return true;
   }
+
+  logout(res: Response) {
+    this.setCookie(res, TokenType.ACCESS_TOKEN, '', 0);
+    res.end();
+    return;
+  }
 }
