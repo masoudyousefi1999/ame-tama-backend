@@ -53,6 +53,28 @@ export class UserAddressController {
   }
 
   @Auth([])
+  @Get('/default')
+  @ApiOkResponse({
+    type: [UserAddressDto],
+  })
+  async getDefaultAddress(@AuthUser() user: UserEntity) {
+    return await this.userAddressService.getCurrentUserAddress(user.id);
+  }
+
+  @Auth([])
+  @Post('/default/:addressId')
+  @ApiParam({ name: 'addressId', type: 'string', required: true })
+  @ApiOkResponse({
+    type: [UserAddressDto],
+  })
+  async makeAddressDefault(
+    @AuthUser() user: UserEntity,
+    @Param('addressId', new ParseUUIDPipe()) addressId: Uuid,
+  ) {
+    return await this.userAddressService.makeDefaultAddress(addressId, user);
+  }
+
+  @Auth([])
   @Get(':addressId')
   @ApiParam({ name: 'addressId', type: 'string', required: true })
   @ApiOkResponse({
