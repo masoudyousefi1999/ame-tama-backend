@@ -1,4 +1,3 @@
-import { ConfigService } from '@nestjs/config';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { OpenAI } from 'openai';
 import { type Response } from 'express';
