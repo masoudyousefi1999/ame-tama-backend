@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { OpenAI } from 'openai';
 import { type Response } from 'express';
@@ -6,16 +7,20 @@ import type { CreateFinanceDto } from './dto/create-finance.dto';
 import { FinanceRepository } from './finance.repository';
 import type { PaginationDto } from 'common/dto/pagination.dto';
 import type { FinanceDto } from './dto/finance.dto';
+import type { ApiConfigService } from 'shared/services/api-config.service';
 
 @Injectable()
 export class FinanceService {
   private openai!: OpenAI;
 
-  constructor(private financeRepo: FinanceRepository) {
+  constructor(
+    private financeRepo: FinanceRepository,
+    private apiConfigService: ApiConfigService,
+  ) {
+    const { apiKey, baseURL } = this.apiConfigService.aiConfig;
     this.openai = new OpenAI({
-      baseURL: 'https://ai.liara.ir/api/v1/686a521fcfc8b228e253fd34',
-      apiKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiI2NWViMGQwMTIxNjczMjhjYzUyNDRjNzkiLCJ0eXBlIjoiYXV0aCIsImlhdCI6MTc1MTc5ODk3NX0.KmnXbILqHLJjhFbKYezT9fy81OHolX_KNXGDan45Xpg',
+      baseURL,
+      apiKey,
     });
   }
 

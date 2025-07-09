@@ -144,6 +144,13 @@ export class ApiConfigService {
     };
   }
 
+  get aiConfig() {
+    return {
+      baseURL: this.getString('FINANCE_AI_BASE_URL'),
+      apiKey: this.getString('FINANCE_API_KEY'),
+    };
+  }
+
   get redisConfigs() {
     return {
       url: this.get('REDIS_URL'),
