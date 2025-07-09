@@ -6,7 +6,7 @@ import type { CreateFinanceDto } from './dto/create-finance.dto';
 import { FinanceRepository } from './finance.repository';
 import type { PaginationDto } from 'common/dto/pagination.dto';
 import type { FinanceDto } from './dto/finance.dto';
-import type { ApiConfigService } from 'shared/services/api-config.service';
+import { ApiConfigService } from '../../shared/services/api-config.service';
 
 @Injectable()
 export class FinanceService {
