@@ -7,7 +7,6 @@ import {
   ManyToOne,
   OneToMany,
   UpdateDateColumn,
-  VirtualColumn,
   type Relation,
 } from 'typeorm';
 import { AbstractEntity } from '../../common/abstract.entity.ts';
@@ -58,12 +57,6 @@ export class UserEntity extends AbstractEntity {
 
   @Column({ nullable: true, type: 'bigint' })
   avatar!: number | null;
-
-  @VirtualColumn({
-    query: (alias) =>
-      `SELECT CONCAT(${alias}.first_name, ' ', ${alias}.last_name)`,
-  })
-  fullName!: string;
 
   @ManyToOne(() => MediaEntity, { eager: true })
   @JoinColumn({ name: 'avatar', referencedColumnName: 'id' })

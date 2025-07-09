@@ -26,6 +26,7 @@ import { OrderModule } from './modules/order/order.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { ProductDetailModule } from './modules/product-detail/product-detail.module';
+import { FinanceModule } from './modules/finance/finance.module';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { ProductDetailModule } from './modules/product-detail/product-detail.mod
     PaymentModule,
     TransactionModule,
     ProductDetailModule,
+    FinanceModule,
   ],
   providers: [],
 })

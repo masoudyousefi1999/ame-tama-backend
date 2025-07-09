@@ -62,10 +62,17 @@ export class UserService {
       avatar_id = media.id;
     }
 
-    return await this.userRepository.update({
+    const updatedUser = await this.userRepository.update({
       filter: { id: user.id },
-      updateData: { avatar: avatar_id, ...rest },
+      updateData: {
+        avatar: avatar_id,
+        firstName: rest.first_name,
+        lastName: rest.last_name,
+        email: rest.email,
+      },
     });
+
+    return updatedUser?.toDto();
   }
 
   async updatePassword(user: UserEntity, updatePasswordDto: UpdatePasswordDto) {
@@ -114,7 +121,7 @@ export class UserService {
   async getUsers() {
     const { document: users, count } = await this.userRepository.find({
       order: { createdAt: 'desc' },
-      relations: ['addresses']
+      relations: ['addresses'],
     });
 
     if (users.length === 0) {

@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Res,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
@@ -16,7 +17,7 @@ import { UserDto } from '../user/dtos/user.dto.ts';
 import { UserEntity } from '../user/user.entity.ts';
 import { AuthService } from './auth.service.ts';
 import { UserRegisterDto } from './dto/user-register.dto.ts';
-import type { Response } from 'express';
+import type { Response, Request } from 'express';
 import { SendOtpDto } from './dto/send-otp.dto.ts';
 
 @Controller('auth')
@@ -30,16 +31,29 @@ export class AuthController {
   async userRegister(
     @Body() userRegisterDto: UserRegisterDto,
     @Res() res: Response,
+    @Req() req: Request,
   ) {
-    return await this.authService.registerUser(userRegisterDto, res);
+    let provider = (req?.headers?.providerSite as string) || 'ame-tama';
+
+    if (provider !== 'finance' && provider !== 'ame-tama') {
+      provider = 'ame-tama';
+    }
+
+    if (!provider) {
+      provider = 'ame-tama';
+    }
+
+    return await this.authService.registerUser({
+      userRegisterDto,
+      res,
+      provider: (provider! as 'ame-tama') || 'finance',
+    });
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Successfully logout' })
-  async logout(
-    @Res() res: Response,
-  ) {
+  async logout(@Res() res: Response) {
     return await this.authService.logout(res);
   }
 

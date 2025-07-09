@@ -36,11 +36,11 @@ export class AuthService {
   setCookie(res: Response, name: string, value: string, maxAge: number) {
     res.cookie(name, value, {
       httpOnly: true,
-      secure: true,
       maxAge,
       sameSite: 'none',
-      domain:
-        process.env.NODE_ENV === 'production' ? '.ame-tama.com' : 'localhost',
+      secure: true,
+      //   domain:
+      //     process.env.NODE_ENV === 'production' ? '.ame-tama.com' : 'localhost',
     });
   }
 
@@ -73,11 +73,21 @@ export class AuthService {
     return true;
   }
 
-  async registerUser(
-    userRegisterDto: UserRegisterDto,
-    res: Response,
-  ): Promise<any> {
+  async registerUser(data: {
+    userRegisterDto: UserRegisterDto;
+    res: Response;
+    provider?: 'ame-tama' | 'finance';
+  }): Promise<any> {
+    const { userRegisterDto, res, provider } = data;
     const { password, phone, otp, email } = userRegisterDto;
+
+    let tokenType = TokenType.ACCESS_TOKEN;
+
+    if (provider && provider === 'finance') {
+      tokenType = TokenType.FINANCE_TOKEN;
+    } else {
+      tokenType = TokenType.ACCESS_TOKEN;
+    }
 
     if (!password && !phone && !otp && !email) {
       throw new BadRequestException(
@@ -109,12 +119,12 @@ export class AuthService {
 
       const token = await this.createAccessToken({
         userId: isUserExist.uuid!,
-        type: TokenType.ACCESS_TOKEN,
+        type: tokenType,
       });
 
       this.setCookie(
         res,
-        TokenType.ACCESS_TOKEN,
+        tokenType,
         token.accessToken,
         1000 * 60 * 60 * 24 * 30,
       );
@@ -130,12 +140,12 @@ export class AuthService {
 
       const token = await this.createAccessToken({
         userId: isUserExist.uuid!,
-        type: TokenType.ACCESS_TOKEN,
+        type: tokenType,
       });
 
       this.setCookie(
         res,
-        TokenType.ACCESS_TOKEN,
+        tokenType,
         token.accessToken,
         1000 * 60 * 60 * 24 * 30,
       );
@@ -160,12 +170,12 @@ export class AuthService {
 
       const token = await this.createAccessToken({
         userId: isUserExist.uuid!,
-        type: TokenType.ACCESS_TOKEN,
+        type: tokenType,
       });
 
       this.setCookie(
         res,
-        TokenType.ACCESS_TOKEN,
+        tokenType,
         token.accessToken,
         1000 * 60 * 60 * 24 * 30,
       );
@@ -183,12 +193,12 @@ export class AuthService {
 
       const token = await this.createAccessToken({
         userId: user.uuid!,
-        type: TokenType.ACCESS_TOKEN,
+        type: tokenType,
       });
 
       this.setCookie(
         res,
-        TokenType.ACCESS_TOKEN,
+        tokenType,
         token.accessToken,
         1000 * 60 * 60 * 24 * 30,
       );
@@ -220,7 +230,7 @@ export class AuthService {
       if (!isSmsSended) {
         return false;
       }
-
+      console.log("otp code: ",otpCode)
       const hashedOtp = generateHash(otpCode);
 
       const isCached = await this.redisService.cacheData(phone, hashedOtp, 120); // 2 minutes
