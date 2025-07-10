@@ -7,12 +7,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import {
-  generateHash,
-  generateOtp,
-  sendSms,
-  validateHash,
-} from '../../common/utils.ts';
+import { generateOtp, sendSms, validateHash } from '../../common/utils.ts';
 import { ApiConfigService } from '../../shared/services/api-config.service.ts';
 import { UserService } from '../user/user.service.ts';
 import { TokenPayloadDto } from './dto/token-payload.dto.ts';
@@ -36,11 +31,9 @@ export class AuthService {
   setCookie(res: Response, name: string, value: string, maxAge: number) {
     res.cookie(name, value, {
       httpOnly: true,
+      secure: true,
       maxAge,
       sameSite: 'none',
-      secure: true,
-      //   domain:
-      //     process.env.NODE_ENV === 'production' ? '.ame-tama.com' : 'localhost',
     });
   }
 
@@ -203,7 +196,7 @@ export class AuthService {
         1000 * 60 * 60 * 24 * 30,
       );
 
-      res.json({ user: isUserExist, token });
+      res.json({ user, token });
       return;
     }
 
@@ -230,10 +223,8 @@ export class AuthService {
       if (!isSmsSended) {
         return false;
       }
-      console.log("otp code: ",otpCode)
-      const hashedOtp = generateHash(otpCode);
 
-      const isCached = await this.redisService.cacheData(phone, hashedOtp, 120); // 2 minutes
+      const isCached = await this.redisService.cacheData(phone, otpCode, 120); // 2 minutes
 
       if (!isCached) {
         const isOtpExist = await this.otpRepository.findOne({
@@ -244,7 +235,7 @@ export class AuthService {
           await this.otpRepository.delete({ phone });
         }
 
-        await this.otpRepository.create({ otpCode: hashedOtp, phone });
+        await this.otpRepository.create({ otpCode: otpCode, phone });
       }
 
       return true;
@@ -257,6 +248,7 @@ export class AuthService {
     if (!phone || !otp) {
       return false;
     }
+
     const cachedData = await this.redisService.getCachedData(phone);
 
     // maybe redis is not reachable check in pg database as fallback
@@ -264,11 +256,9 @@ export class AuthService {
       const userOtp = await this.otpRepository.findOne({ filter: { phone } });
 
       if (userOtp) {
-        const otpCOde = await validateHash(otp, userOtp.otpCode);
-
         const isOtpStillValid = this.isOtpStillValid(userOtp);
 
-        if (otpCOde && isOtpStillValid) {
+        if (isOtpStillValid) {
           await this.otpRepository.delete({ phone });
           return true;
         }
@@ -277,7 +267,7 @@ export class AuthService {
       return false;
     }
 
-    const isOtpValid = await validateHash(otp, cachedData);
+    const isOtpValid = otp === cachedData;
 
     if (isOtpValid) {
       this.redisService.deleteCachedData(phone);

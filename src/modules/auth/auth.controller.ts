@@ -54,7 +54,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Successfully logout' })
   async logout(@Res() res: Response) {
-    return await this.authService.logout(res);
+    return this.authService.logout(res);
   }
 
   @Post('otp')
