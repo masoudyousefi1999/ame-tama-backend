@@ -1,0 +1,242 @@
+[
+  {
+    "name": "فیگور اوزوماکی ناروتو نسخه نوجوان شیپودن",
+    "slug": "naruto-uzumaki-shippuden-teen",
+    "height": 20,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور اوزوماکی ناروتو نسخه کودک کلاسیک",
+    "slug": "naruto-uzumaki-classic-kid",
+    "height": 26,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور اوچیها ساسکه نسخه کودک کلاسیک",
+    "slug": "sasuke-uchiha-classic-kid",
+    "height": 26,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور اوزوماکی ناروتو نسخه سیج مود شیپودن",
+    "slug": "naruto-uzumaki-sage-mode-shippuden",
+    "height": 15,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور اوچیها ایتاچی نسخه آکاتسکی شیپودن",
+    "slug": "itachi-uchiha-akatsuki-shippuden",
+    "height": 28,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور اوچیها ساسکه نسخه تاکا شیپودن",
+    "slug": "sasuke-uchiha-taka-shippuden",
+    "height": 25,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور هاتاکه کاکاشی نسخه کژوال",
+    "slug": "kakashi-hatake-casual-style",
+    "height": 20,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور اوچیها ساسکه نسخه مارک نفرین شده شیپودن",
+    "slug": "sasuke-uchiha-cursed-mark-shippuden",
+    "height": 24,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور هاتاکه کاکاشی نسخه آنبو جوانی",
+    "slug": "kakashi-hatake-anbu-young",
+    "height": 20,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور اوزوماکی ناروتو نسخه سیج مود حالت مدیتیشن",
+    "slug": "naruto-uzumaki-sage-mode-shirtless",
+    "height": 13,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور اوچیها ایتاچی و اوچیها ساسکه نسخه دیدار پایانی شیپودن",
+    "slug": "itachi-uchiha-vs-sasuke-final-meeting-shippuden",
+    "height": 17,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور کامادو تانجیرو نسخه هینوکامی کاگورا",
+    "slug": "tanjiro-kamado-hinokami-kagura",
+    "height": 17,
+    "quantity": 5
+  },
+  {
+    "name": "فیگور آگاتسوما زنی‌تسو نسخه تنفس رعد",
+    "slug": "zenitsu-agatsuma-thunder-breathing",
+    "height": 13,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور آگاتسوما زنی‌تسو نسخه تنفس رعد اول با افکت نوری",
+    "slug": "zenitsu-agatsuma-thunder-breath-first-form-light-effect",
+    "height": 35,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور هیتسوگایا توشیرو نسخه بانکای یخی",
+    "slug": "toshiro-hitsugaya-ice-bankai",
+    "height": 30,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور نل نسخه کودک",
+    "slug": "neliel-tu-odelschwanck-kid-form",
+    "height": 6,
+    "quantity": 10
+  },
+  {
+    "name": "فیگور توجی فوشیگورو نسخه کلاسیک جوجوتسو",
+    "slug": "toji-fushiguro-classic-jujutsu-kaisen",
+    "height": 21,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور ساتورو گوجو نسخه هالو پرپل جوجوتسو",
+    "slug": "satoru-gojo-hollow-purple-jujutsu-kaisen",
+    "height": 31,
+    "quantity": 5
+  },
+  {
+    "name": "فیگور ایتادوری یووجی نسخه مشت دوگانه جوجوتسو",
+    "slug": "yuji-itadori-divergent-fist-jujutsu-kaisen",
+    "height": 30,
+    "quantity": 3
+  },
+  {
+    "name": "فیگور مونکی دی لوفی نسخه جنگی با کلاه",
+    "slug": "monkey-d-luffy-battle-version-with-hat",
+    "height": 24,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور مونکی دی لوفی نسخه گیرفور اسنیک‌من با شنل",
+    "slug": "monkey-d-luffy-gear4-snakeman-with-cape",
+    "height": 20,
+    "quantity": 5
+  },
+  {
+    "name": "فیگور شانکس نسخه نشسته با کلاه حصیری",
+    "slug": "shanks-sitting-version-with-luffy-hat",
+    "height": 17,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور رورونوا زورو نسخه سه‌شمشیری آرک وان‌او",
+    "slug": "roronoa-zoro-three-sword-wano-arc",
+    "height": 18,
+    "quantity": 10
+  },
+  {
+    "name": "فیگور شانکس نسخه نشسته با کاسه ساکه",
+    "slug": "shanks-sitting-version-with-sake-cup",
+    "height": 12,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور سابو نسخه شعله‌ آتش با کلاه و شنل",
+    "slug": "sabo-fire-flame-hat-and-cape",
+    "height": 22,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور رورونوا زورو نسخه آشورا آرک وانو",
+    "slug": "roronoa-zoro-asura-wano-arc",
+    "height": 25,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور دراکول میهوک نسخه کلاسیک با شمشیر یورو",
+    "slug": "dracule-mihawk-classic-yoru-sword",
+    "height": 16,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور رورونوا زورو نسخه زخمی با افکت هاکی وانو",
+    "slug": "roronoa-zoro-wounded-haki-wano-arc",
+    "height": 21,
+    "quantity": 5
+  },
+  {
+    "name": "فیگور سانجی نسخه کت‌وشلوار سفید با افکت آتش",
+    "slug": "sanji-white-suit-fire-effect",
+    "height": 37,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور سانجی نسخه کت‌وشلوار سیاه با افکت آتش",
+    "slug": "sanji-black-suit-fire-effect",
+    "height": 37,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور مونکی دی لوفی نسخه گیرفایو با افکت ماه کامل",
+    "slug": "monkey-d-luffy-gear5-full-moon-effect",
+    "height": 35,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور مونکی دی لوفی نسخه گیرفایو نشسته",
+    "slug": "monkey-d-luffy-gear5-sitting-style",
+    "height": 15,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور رورونوا زورو نسخه تمرین دوران کودکی",
+    "slug": "roronoa-zoro-training-kid-version",
+    "height": 9.5,
+    "quantity": 5
+  },
+  {
+    "name": "فیگور پورتگاس دی. ایس با بشکه و شعله",
+    "slug": "portgas-d-ace-barrel-flame-figure",
+    "height": 22,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور اوزوماکی ناروتو حالت Sage با وزغ‌ها",
+    "slug": "uzumaki-naruto-sage-mode-light-up-figure",
+    "height": 22,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور هاتاکه کاکاشی – تکنیک چیدوری",
+    "slug": "hatake-kakashi-chidori-lightning-figure",
+    "height": 20,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور رورونوا زورو – حالت سه‌شمشیری زخمی",
+    "slug": "roronoa-zoro-battle-damaged-santoryu-figure",
+    "height": 17,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور دراکیول میهوک – ضربه‌ی شمشیر سیاه یورو",
+    "slug": "dracule-mihawk-black-blade-yoru-attack-figure",
+    "height": 35,
+    "quantity": 1
+  },
+  {
+    "name": "فیگور مانکی.دی.لوفی – استایل کلاسیک با کلاه حصیری",
+    "slug": "monkey-d-luffy-classic-hat-style-figure",
+    "height": 22,
+    "quantity": 2
+  },
+  {
+    "name": "فیگور کوکوشیبو – شیطان رتبه اول",
+    "slug": "kokushibo-upper-moon-one-demon-slayer-figure",
+    "height": 29,
+    "quantity": 10
+  }
+]

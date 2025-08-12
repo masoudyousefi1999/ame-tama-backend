@@ -139,7 +139,7 @@ export class ProductService {
       | FindOptionsRelations<ProductEntity>,
   ) {
     return await this.productRepo.findOne({
-      filter: { inStock: true, ...filter },
+      filter: { ...filter },
       relations,
     });
   }
