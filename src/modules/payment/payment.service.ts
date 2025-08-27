@@ -13,7 +13,7 @@ import { VerifyPaymentDto } from './dto/verify-payment.dto';
 import { TransactionService } from '../../modules/transaction/transaction.service';
 import { PaymentEntity } from './entity/payment.entity';
 import { WalletService } from '../../modules/wallet/wallet.service';
-import { calculateZarinpalFinalAmount } from 'common/utils';
+import { calculateZarinpalFinalAmount } from '../../common/utils';
 
 @Injectable()
 export class PaymentService {
