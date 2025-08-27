@@ -13,7 +13,7 @@ import { VerifyPaymentDto } from './dto/verify-payment.dto';
 import { TransactionService } from '../../modules/transaction/transaction.service';
 import { PaymentEntity } from './entity/payment.entity';
 import { WalletService } from '../../modules/wallet/wallet.service';
-import { calculateZarinpalFinalAmount } from '../../common/utils';
+import axios from 'axios';
 
 @Injectable()
 export class PaymentService {
@@ -89,10 +89,21 @@ export class PaymentService {
       sandbox: this.isSandBoxMode,
     });
 
-    const finalFee = calculateZarinpalFinalAmount(Number(amount));
+    const feeData = {
+      merchant_id: process.env.ZARINPAL_MERCHANT_ID!,
+      amount: Number(amount),
+      currency: 'IRR',
+    };
+
+    const fee = await axios.post(
+      'https://payment.zarinpal.com/pg/v4/payment/feeCalculation.json',
+      feeData,
+    );
+
+    const finalFee = fee?.data?.data?.suggested_amount || amount;
 
     const paymentInfo = await driver.requestPayment({
-      amount: finalFee,
+      amount: Number(finalFee),
       description: 'خرید از ame-tama',
       callbackUrl: `${process.env.ZARINPAL_CALLBACK_URL}/payments/zarinpal/callback`,
       mobile: phone,

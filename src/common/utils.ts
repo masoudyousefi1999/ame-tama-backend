@@ -130,24 +130,3 @@ export function generateOtp(lengthNumber: number): string {
   }
   return otp;
 }
-
-/**
- * Calculate final amount including Zarinpal fees.
- * Default: Normal gateway (1% up to 6,000 + 250) + Shaparak fee
- * @param amount مبلغ به ریال (IRR)
- * @returns amount + fee
- */
-export function calculateZarinpalFinalAmount(amount: number): number {
-  // کارمزد شاپرک
-  const feeShaparak =
-    amount <= 6_000_000 ? 1_200 : Math.min(amount * 0.0002, 40_000);
-
-  // کارمزد زرین‌پال (درگاه معمولی)
-  const feeZarinpal = Math.min(amount * 0.01, 6_000) + 250;
-
-  // جمع کارمزد
-  const totalFee = Math.round(feeShaparak + feeZarinpal);
-
-  // مبلغ نهایی
-  return Math.round(amount + totalFee);
-}
