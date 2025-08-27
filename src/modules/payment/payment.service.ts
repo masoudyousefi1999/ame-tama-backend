@@ -14,6 +14,7 @@ import { TransactionService } from '../../modules/transaction/transaction.servic
 import { PaymentEntity } from './entity/payment.entity';
 import { WalletService } from '../../modules/wallet/wallet.service';
 import axios from 'axios';
+import { calculateZarinpalFinalAmount } from 'common/utils';
 
 @Injectable()
 export class PaymentService {
@@ -89,21 +90,10 @@ export class PaymentService {
       sandbox: this.isSandBoxMode,
     });
 
-    const feeData = {
-      merchant_id: process.env.ZARINPAL_MERCHANT_ID!,
-      amount: Number(amount),
-      currency: 'IRR',
-    };
-
-    const fee = await axios.post(
-      'https://payment.zarinpal.com/pg/v4/payment/feeCalculation.json',
-      feeData,
-    );
-
-    const finalFee = fee?.data?.data?.suggested_amount || amount;
+    const finalFee = calculateZarinpalFinalAmount(Number(amount));
 
     const paymentInfo = await driver.requestPayment({
-      amount: Number(finalFee),
+      amount: finalFee,
       description: 'خرید از ame-tama',
       callbackUrl: `${process.env.ZARINPAL_CALLBACK_URL}/payments/zarinpal/callback`,
       mobile: phone,
