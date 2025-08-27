@@ -33,7 +33,7 @@ export class MediaService {
     const splittedFileName = fileName.split('.');
 
     const uuid = splittedFileName[0];
-    const fileExtension = splittedFileName[1];
+    const fileExtension = 'webp';
 
     const media = await this.mediaRepo.create({
       uuid,

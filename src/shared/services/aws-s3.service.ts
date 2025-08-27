@@ -1,10 +1,10 @@
 import { S3 } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
-import mime from 'mime-types';
 import type { IFile } from './../../interfaces/IFile.ts';
 import { ApiConfigService } from './api-config.service.ts';
 import { GeneratorService } from './generator.service.ts';
 import type { MediaType } from '../../constants/media-type.ts';
+import sharp from 'sharp';
 
 @Injectable()
 export class AwsS3Service {
@@ -39,18 +39,21 @@ export class AwsS3Service {
       }
   > {
     try {
-      const fileName = this.generatorService.fileName(
-        mime.extension(file.mimetype) as string,
-      );
+      const fileName = this.generatorService.fileName('webp');
 
       const key = `${type}/${fileName}`;
       const bucketName = this.configService.awsS3Config.bucketName;
 
+      const webpBuffer = await sharp(file.buffer)
+        .webp({ quality: 80 }) // adjust quality between 1-100
+        .toBuffer();
+
       await this.s3.putObject({
         Bucket: bucketName,
-        Body: file.buffer,
+        Body: webpBuffer,
         ACL: 'public-read',
         Key: key,
+        ContentType: 'image/webp',
       });
 
       return { fileName, type, bucketName };
