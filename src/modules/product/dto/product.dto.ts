@@ -38,9 +38,9 @@ export class ProductDto extends AbstractDto {
     super(product);
     this.name = product.name;
     this.slug = product.slug;
-    this.price = product.price;
-    this.quantity = product.quantity;
-    this.rating = product.rating!;
+    this.price = Number(product.price);
+    this.quantity = Number(product.quantity);
+    this.rating = product.rating !== undefined ? Number(product.rating) : 0;
     this.detail = product?.detail
       ? new ProductDetailDto(product.detail)
       : undefined;
