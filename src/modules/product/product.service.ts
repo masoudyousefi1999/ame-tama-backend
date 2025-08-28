@@ -22,6 +22,7 @@ import { ProductMediaRepository } from './repository/product-media.repository';
 import type { UpdateProductDto } from './dto/update-product.dto';
 import { ProductDetailService } from './../../modules/product-detail/product-detail.service';
 import type { SearchDto } from './dto/search-product.dto';
+import { RedisService } from '../../shared/services/redis.service';
 
 @Injectable()
 export class ProductService {
@@ -31,6 +32,7 @@ export class ProductService {
     private mediaService: MediaService,
     private productMediaRepo: ProductMediaRepository,
     private productDetailService: ProductDetailService,
+    private redisService: RedisService,
   ) {}
 
   async create(CreateProductDto: CreateProductDto) {
@@ -267,6 +269,14 @@ export class ProductService {
 
   async getProducts(paginationDto: PaginationDto) {
     const { limit, page } = paginationDto;
+
+    const cachedData = await this.redisService.getCachedData(
+      `getProducts-page-${page}-limit-${limit}`,
+    );
+
+    if (cachedData) return JSON.parse(cachedData);
+    console.log('after cached data')
+
     const { document: products, count } = await this.productRepo.find({
       filter: { deletedAt: IsNull() },
       limit,
@@ -277,7 +287,17 @@ export class ProductService {
 
     const normalizedProducts = products.map((item) => item.toDto());
 
-    return { products: normalizedProducts, totalCount: count };
+    const finalResponse = { products: normalizedProducts, totalCount: count };
+
+    const sixHoursInSec = 60 * 60 * 6;
+
+    await this.redisService.cacheData(
+      `getProducts-page-${page}-limit-${limit}`,
+      JSON.stringify(finalResponse),
+      sixHoursInSec,
+    );
+
+    return finalResponse;
   }
 
   async getSimilarProducts(productId: Uuid, paginationDto: PaginationDto) {
