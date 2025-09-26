@@ -14,6 +14,7 @@ import { TransactionService } from '../../modules/transaction/transaction.servic
 import { PaymentEntity } from './entity/payment.entity';
 import { WalletService } from '../../modules/wallet/wallet.service';
 import axios from 'axios';
+import { calculateShaparakFees } from './shaparak/shaparak.fee';
 
 @Injectable()
 export class PaymentService {
@@ -55,8 +56,23 @@ export class PaymentService {
 
     totalPrice = Math.floor(totalPrice);
 
+    const feeData = {
+      merchant_id: process.env.ZARINPAL_MERCHANT_ID!,
+      amount: Number(totalPrice),
+      currency: 'IRR',
+    };
+
+    const fee = await axios.post(
+      'https://payment.zarinpal.com/pg/v4/payment/feeCalculation.json',
+      feeData,
+    );
+
+    const calculatedFee = fee?.data?.data?.suggested_amount || totalPrice;
+
+    const finalFee = calculateShaparakFees(calculatedFee);
+
     const payment = await this.paymentRepo.create({
-      amount: totalPrice,
+      amount: finalFee.finalAmount,
       orderId: order.id,
       status: PaymentStatusEnum.PENDING,
     });
@@ -89,21 +105,8 @@ export class PaymentService {
       sandbox: this.isSandBoxMode,
     });
 
-    const feeData = {
-      merchant_id: process.env.ZARINPAL_MERCHANT_ID!,
-      amount: Number(amount),
-      currency: 'IRR',
-    };
-
-    const fee = await axios.post(
-      'https://payment.zarinpal.com/pg/v4/payment/feeCalculation.json',
-      feeData,
-    );
-
-    const finalFee = fee?.data?.data?.suggested_amount || amount;
-
     const paymentInfo = await driver.requestPayment({
-      amount: Number(finalFee),
+      amount: Number(amount),
       description: 'خرید از ame-tama',
       callbackUrl: `${process.env.ZARINPAL_CALLBACK_URL}/payments/zarinpal/callback`,
       mobile: phone,
