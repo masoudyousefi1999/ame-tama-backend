@@ -76,13 +76,13 @@ export class PaymentService {
     console.log("finalFee is => ",finalFee)
 
     const payment = await this.paymentRepo.create({
-      amount: finalFee.finalAmount,
+      amount: finalFee?.finalAmount || calculatedFee,
       orderId: order.id,
       status: PaymentStatusEnum.PENDING,
     });
 
     const startPay = await this.startPay({
-      amount: totalPrice,
+      amount: finalFee?.finalAmount || calculatedFee,
       phone: user?.phone!,
     });
 
