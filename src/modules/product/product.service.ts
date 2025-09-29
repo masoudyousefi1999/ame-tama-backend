@@ -23,6 +23,7 @@ import type { UpdateProductDto } from './dto/update-product.dto';
 import { ProductDetailService } from './../../modules/product-detail/product-detail.service';
 import type { SearchDto } from './dto/search-product.dto';
 import { RedisService } from '../../shared/services/redis.service';
+import type { ProductDto } from './dto/product.dto';
 
 @Injectable()
 export class ProductService {
@@ -267,15 +268,18 @@ export class ProductService {
     return products.data.map((item) => item.toDto());
   }
 
-  async getProducts(paginationDto: PaginationDto) {
+  async getProducts(
+    paginationDto: PaginationDto,
+    isCacheEnabled: boolean = true,
+  ): Promise<{ products: ProductDto[]; totalCount: number }> {
     const { limit, page } = paginationDto;
 
-    const cachedData = await this.redisService.getCachedData(
-      `getProducts-page-${page}-limit-${limit}`,
-    );
-
-    if (cachedData) return JSON.parse(cachedData);
-    console.log('after cached data')
+    if (isCacheEnabled) {
+      const cachedData = await this.redisService.getCachedData(
+        `getProducts-page-${page}-limit-${limit}`,
+      );
+      if (cachedData) return JSON.parse(cachedData);
+    }
 
     const { document: products, count } = await this.productRepo.find({
       filter: { deletedAt: IsNull() },
@@ -285,17 +289,21 @@ export class ProductService {
       order: { updatedAt: 'desc' },
     });
 
-    const normalizedProducts = products.map((item) => item.toDto());
+    const normalizedProducts = products.map((item) =>
+      item.toDto(),
+    ) as ProductDto[];
 
     const finalResponse = { products: normalizedProducts, totalCount: count };
 
     const sixHoursInSec = 60 * 60 * 6;
 
-    await this.redisService.cacheData(
-      `getProducts-page-${page}-limit-${limit}`,
-      JSON.stringify(finalResponse),
-      sixHoursInSec,
-    );
+    if (isCacheEnabled) {
+      await this.redisService.cacheData(
+        `getProducts-page-${page}-limit-${limit}`,
+        JSON.stringify(finalResponse),
+        sixHoursInSec,
+      );
+    }
 
     return finalResponse;
   }

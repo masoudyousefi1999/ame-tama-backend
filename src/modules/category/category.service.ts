@@ -9,12 +9,15 @@ import { CategoryRepository } from './category.repository';
 import { MediaService } from '../../modules/media/media.service';
 import { type FindOptionsWhere } from 'typeorm';
 import type { CategoryEntity } from './entity/category.entity';
+import type { CategoryDto } from './dto/category.dto';
+import { RedisService } from '../../shared/services/redis.service';
 
 @Injectable()
 export class CategoryService {
   constructor(
     private categoryRepository: CategoryRepository,
     private mediaService: MediaService,
+    private redisService: RedisService,
   ) {}
   async create(createCategoryDto: CreateCategoryDto) {
     const { image, parent, ...rest } = createCategoryDto;
@@ -55,10 +58,24 @@ export class CategoryService {
     return category.toDto();
   }
 
-  async findAll() {
+  async findAll(): Promise<CategoryDto[]> {
+    const isCached = await this.redisService.getCachedData('findAllCategories');
+    if (isCached) {
+      return JSON.parse(isCached);
+    }
     const categories = await this.categoryRepository.findAll();
 
-    return categories?.map((item) => item.toDto());
+    const normalizedCategories = categories?.map((item) =>
+      item.toDto(),
+    ) as CategoryDto[];
+
+    await this.redisService.cacheData(
+      'findAllCategories',
+      JSON.stringify(normalizedCategories),
+      60 * 60 * 24,
+    );
+
+    return normalizedCategories;
   }
 
   async findOne(slug: string) {

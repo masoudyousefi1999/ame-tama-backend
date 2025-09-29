@@ -67,9 +67,13 @@ export class PaymentService {
       feeData,
     );
 
+    console.log('fee is => ',fee);
+
     const calculatedFee = fee?.data?.data?.suggested_amount || totalPrice;
 
     const finalFee = calculateShaparakFees(calculatedFee);
+
+    console.log("finalFee is => ",finalFee)
 
     const payment = await this.paymentRepo.create({
       amount: finalFee.finalAmount,
