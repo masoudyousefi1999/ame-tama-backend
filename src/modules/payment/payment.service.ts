@@ -87,7 +87,7 @@ export class PaymentService {
     });
 
     await this.transactionService.createTransaction({
-      amount: totalPrice,
+      amount: finalFee?.finalAmount || calculatedFee,
       method: 'GATEWAY',
       paymentId: payment?.id,
       referenceId: startPay?.referenceId! as string,
