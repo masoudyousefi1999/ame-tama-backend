@@ -67,7 +67,7 @@ export class PaymentService {
       feeData,
     );
 
-    console.log('fee is => ',fee);
+    console.log('fee is => ',fee.data);
 
     const calculatedFee = fee?.data?.data?.suggested_amount || totalPrice;
 
