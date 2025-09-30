@@ -28,6 +28,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
 import { ProductDetailModule } from './modules/product-detail/product-detail.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { SiteMapModule } from './modules/site-map/site-map.module';
+import { ImageModule } from './modules/image/image.module';
 
 @Module({
   imports: [
@@ -92,6 +93,7 @@ import { SiteMapModule } from './modules/site-map/site-map.module';
     ProductDetailModule,
     FinanceModule,
     SiteMapModule,
+    ImageModule,
   ],
   providers: [],
 })
