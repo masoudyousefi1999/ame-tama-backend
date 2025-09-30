@@ -83,6 +83,14 @@ export class ProductService {
   }
 
   async findOne(slug: string) {
+    const productCacheKey = `product:slug:${slug}`;
+    const cachedProduct =
+      await this.redisService.getCachedData(productCacheKey);
+
+    if (cachedProduct) {
+      return JSON.parse(cachedProduct);
+    }
+
     const product = await this.findOneProduct({ slug }, [
       'detail',
       'category',
@@ -94,10 +102,28 @@ export class ProductService {
       throw new NotFoundException('product not founded');
     }
 
-    return product.toDto();
+    const dto = product.toDto();
+
+    // Cache for 1 hour
+    const oneHourInSec = 60 * 60;
+    await this.redisService.cacheData(
+      productCacheKey,
+      JSON.stringify(dto),
+      oneHourInSec,
+    );
+
+    return dto;
   }
 
   async findByCategory(categorySlug: string, paginationDto: PaginationDto) {
+    // Try cache first
+    const { page, limit } = paginationDto;
+    const listCacheKey = `products:by-category:${categorySlug}:page-${page}-limit-${limit}`;
+    const cachedList = await this.redisService.getCachedData(listCacheKey);
+    if (cachedList) {
+      return JSON.parse(cachedList);
+    }
+
     const category = await this.categoryService.findOneCategory({
       slug: categorySlug,
     });
@@ -132,7 +158,17 @@ export class ProductService {
       return product.toDto();
     });
 
-    return { products: normalizedProducts, totalCount: count };
+    const response = { products: normalizedProducts, totalCount: count };
+
+    // Cache for 1 hour
+    const oneHourInSec = 60 * 60;
+    await this.redisService.cacheData(
+      listCacheKey,
+      JSON.stringify(response),
+      oneHourInSec,
+    );
+
+    return response;
   }
 
   async findOneProduct(
