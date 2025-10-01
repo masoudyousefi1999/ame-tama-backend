@@ -30,7 +30,7 @@ export class CommentController {
 
   @Get('last')
   @ApiQuery({ name: 'paginationDto', type: PaginationDto })
-  async getLastComments(@Query('paginationDto') paginationDto: PaginationDto) {
+  async getLastComments(@Query() paginationDto: PaginationDto) {
     return this.commentService.getLastComments(paginationDto);
   }
   
