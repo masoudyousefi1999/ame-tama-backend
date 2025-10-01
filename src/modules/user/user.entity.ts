@@ -15,6 +15,7 @@ import { UseDto } from '../../decorators/use-dto.decorator.ts';
 import { UserDto } from './dtos/user.dto.ts';
 import { MediaEntity } from '../../modules/media/media.entity.ts';
 import { UserAddressEntity } from '../../modules/user-address/entity/user-address.entity.ts';
+import { CommentEntity } from '../../modules/comment/entity/comment.entity.ts';
 
 @Entity({ name: 'users' })
 @UseDto(UserDto)
@@ -66,4 +67,7 @@ export class UserEntity extends AbstractEntity {
     cascade: true,
   })
   addresses!: Relation<UserAddressEntity[]>;
+
+  @OneToMany(() => CommentEntity, (comment) => comment.user)
+  comments!: Relation<CommentEntity[]>;
 }

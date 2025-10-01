@@ -15,6 +15,7 @@ import { CategoryEntity } from '../../../modules/category/entity/category.entity
 import { ProductDto } from '../dto/product.dto';
 import { ProductMediaEntity } from './product-media.entity';
 import { ProductDetailEntity } from '../../../modules/product-detail/entity/product-detail.entity';
+import { CommentEntity } from '../../../modules/comment/entity/comment.entity';
 
 @Entity({ name: 'products' })
 @UseDto(ProductDto)
@@ -69,4 +70,7 @@ export class ProductEntity extends AbstractEntity {
   @ManyToOne(() => ProductDetailEntity)
   @JoinColumn({ name: 'id', referencedColumnName: 'productId' })
   detail?: Relation<any>;
+
+  @OneToMany(() => CommentEntity, (comment) => comment.product)
+  comments!: Relation<CommentEntity[]>;
 }

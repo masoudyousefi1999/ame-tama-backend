@@ -28,7 +28,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
 import { ProductDetailModule } from './modules/product-detail/product-detail.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { SiteMapModule } from './modules/site-map/site-map.module';
-import { ImageModule } from './modules/image/image.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
   imports: [
@@ -93,7 +93,7 @@ import { ImageModule } from './modules/image/image.module';
     ProductDetailModule,
     FinanceModule,
     SiteMapModule,
-    ImageModule,
+    CommentModule,
   ],
   providers: [],
 })
