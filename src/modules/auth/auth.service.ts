@@ -34,7 +34,7 @@ export class AuthService {
       secure: true,
       maxAge,
       sameSite: 'none',
-      domain: '.ama-tama.com',
+      domain: '.ame-tama.com',
     });
   }
 
