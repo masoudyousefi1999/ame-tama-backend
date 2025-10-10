@@ -67,27 +67,27 @@ export class PaymentService {
       feeData,
     );
 
-    console.log('fee is => ',fee.data);
-
     const calculatedFee = fee?.data?.data?.suggested_amount || totalPrice;
 
     const finalFee = calculateShaparakFees(calculatedFee);
 
-    console.log("finalFee is => ",finalFee)
+    let finalAmount = finalFee?.finalAmount || calculatedFee;
+
+    finalAmount = Math.floor(finalAmount);
 
     const payment = await this.paymentRepo.create({
-      amount: finalFee?.finalAmount || calculatedFee,
+      amount: finalAmount,
       orderId: order.id,
       status: PaymentStatusEnum.PENDING,
     });
 
     const startPay = await this.startPay({
-      amount: finalFee?.finalAmount || calculatedFee,
+      amount: finalAmount,
       phone: user?.phone!,
     });
 
     await this.transactionService.createTransaction({
-      amount: finalFee?.finalAmount || calculatedFee,
+      amount: finalAmount,
       method: 'GATEWAY',
       paymentId: payment?.id,
       referenceId: startPay?.referenceId! as string,
