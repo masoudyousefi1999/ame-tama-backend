@@ -379,13 +379,13 @@ export class ProductService {
 
     const finalResponse = { products: normalizedProducts, totalCount: count };
 
-    const sixHoursInSec = 60 * 60 * 6;
+    const oneHourInSec = 60 * 60 * 1;
 
     if (isCacheEnabled) {
       await this.redisService.cacheData(
         `getProducts-page-${page}-limit-${limit}`,
         JSON.stringify(finalResponse),
-        sixHoursInSec,
+        oneHourInSec,
       );
     }
 
