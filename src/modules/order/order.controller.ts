@@ -85,7 +85,7 @@ export class OrderController {
   @Patch('/update/:id')
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ type: OrderDto })
-  async updateOrder(@Param('uuid', new ParseUUIDPipe({ version: '4' })) id: Uuid, @Body() updateOrderDto: UpdateOrderDto) {
+  async updateOrder(@Param('id', new ParseUUIDPipe({ version: '4' })) id: Uuid, @Body() updateOrderDto: UpdateOrderDto) {
     return await this.orderService.updateOrder(id, updateOrderDto);
   }
 

@@ -262,6 +262,10 @@ export class OrderService {
   }
 
   async updateOrder(id: Uuid, updateOrderDto: UpdateOrderDto) {
+    if (!updateOrderDto) {
+      throw new BadRequestException('status or tracking code is required');
+    }
+
     const { status, trackingCode } = updateOrderDto;
 
     if (!status && !trackingCode) {
@@ -292,14 +296,17 @@ export class OrderService {
   }
 
   async getOrderById(id: Uuid) {
-    const order = await this.orderRepo.findOne({ filter: { uuid: id }, relations: [
-      'items',
-      'items.product',
-      'items.product.productMedia',
-      'items.product.productMedia.media',
-      'address',
-      'user',
-    ] });
+    const order = await this.orderRepo.findOne({
+      filter: { uuid: id },
+      relations: [
+        'items',
+        'items.product',
+        'items.product.productMedia',
+        'items.product.productMedia.media',
+        'address',
+        'user',
+      ],
+    });
     if (!order) {
       throw new NotFoundException('order not found');
     }
