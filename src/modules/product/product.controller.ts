@@ -73,6 +73,17 @@ export class ProductController {
     return await this.productService.findOne(slug);
   }
 
+  @Get('uuid/:uuid')
+  @ApiParam({ name: 'uuid', type: String, required: true })
+  @ApiOkResponse({
+    type: ProductDto,
+  })
+  async findOneByUuid(@Param('uuid') uuid: Uuid) {
+    return await this.productService.findOneByUuid(uuid);
+  }
+
+
+
   @Get('/category/:categorySlug')
   @ApiParam({ name: 'categorySlug', type: String, required: true })
   @ApiOkResponse({

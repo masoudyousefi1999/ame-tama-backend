@@ -17,6 +17,9 @@ import type { SendOtpDto } from './dto/send-otp.dto.ts';
 import { RedisService } from '../../shared/services/redis.service.ts';
 import type { OtpEntity } from './otp.entity.ts';
 import { TokenType } from '../../constants/token-type.ts';
+import { UserEntity } from '../user/user.entity.ts';
+import { InjectRepository } from '@nestjs/typeorm';
+import type { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -24,9 +27,13 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ApiConfigService,
     private userService: UserService,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
     private otpRepository: OtpRepository,
     private redisService: RedisService,
-  ) {}
+  ) {
+    this.getSiteInfo();
+  }
 
   setCookie(res: Response, name: string, value: string, maxAge: number) {
     res.cookie(name, value, {
@@ -34,7 +41,8 @@ export class AuthService {
       secure: true,
       maxAge,
       sameSite: 'none',
-      domain: '.ame-tama.com',
+      domain:
+        process.env.NODE_ENV === 'production' ? '.ame-tama.com' : '.localhost',
     });
   }
 
@@ -293,5 +301,26 @@ export class AuthService {
     this.setCookie(res, TokenType.ACCESS_TOKEN, '', 0);
     res.end();
     return;
+  }
+
+  async getSiteInfo() {
+    const sql = `
+    SELECT
+      (SELECT COUNT(*) FROM users) AS total_users,
+      (SELECT COUNT(*) FROM comment) AS total_comments,
+      (SELECT COUNT(*) FROM products) AS total_products,
+      (SELECT COUNT(*) FROM orders WHERE status != 'open') AS total_orders;
+  `;
+
+    const result = await this.userRepository.query(sql);
+
+    const infos = {
+      totalUsers: Number(result[0].total_users),
+      totalComments: Number(result[0].total_comments),
+      totalProducts: Number(result[0].total_products),
+      totalOrders: Number(result[0].total_orders),
+    };
+
+    return infos;
   }
 }

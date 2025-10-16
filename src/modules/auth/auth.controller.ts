@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  InternalServerErrorException,
   Post,
   Req,
   Res,
@@ -78,5 +79,18 @@ export class AuthController {
   @ApiOkResponse({ type: Boolean })
   isAdmin(@AuthUser() user: UserEntity): boolean {
     return user?.role === 'ADMIN';
+  }
+
+  @Get('site-info')
+  @HttpCode(HttpStatus.OK)
+//   @Auth([RoleType.ADMIN])
+  @ApiOkResponse({ type: Object })
+  async getSiteInfo() {
+    try {
+        return await this.authService.getSiteInfo();
+    } catch (error) {
+        console.error(error);
+        throw new InternalServerErrorException('Failed to get site info');
+    }
   }
 }

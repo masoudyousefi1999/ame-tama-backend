@@ -11,6 +11,7 @@ import { PublicStrategy } from './public.strategy.ts';
 import { OtpRepository } from './otp.repository.ts';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OtpEntity } from './otp.entity.ts';
+import { UserEntity } from '../user/user.entity.ts';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { OtpEntity } from './otp.entity.ts';
       }),
       inject: [ApiConfigService],
     }),
-    TypeOrmModule.forFeature([OtpEntity]),
+    TypeOrmModule.forFeature([OtpEntity, UserEntity]),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, PublicStrategy, OtpRepository],

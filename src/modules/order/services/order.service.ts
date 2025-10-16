@@ -1,5 +1,6 @@
 import { PaginationDto } from './../../../common/dto/pagination.dto';
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -16,6 +17,8 @@ import { WalletService } from '../../../modules/wallet/wallet.service';
 import { PaymentEntity } from '../../../modules/payment/entity/payment.entity';
 import type { OrderDto } from '../dto/order.dto';
 import { UserAddressService } from '../../../modules/user-address/user-address.service';
+import type { UserAddressDto } from 'modules/user-address/dto/user-address.dto';
+import type { UpdateOrderDto } from '../dto/update-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -195,16 +198,13 @@ export class OrderService {
   ) {
     const { limit, page } = paginationDto;
     const { document, count } = await this.orderRepo.find({
-      filter: { userId: user.id, ...(status ? { status } : {status: Not(OrderStatusEnum.OPEN)}) },
+      filter: {
+        userId: user.id,
+        ...(status ? { status } : { status: Not(OrderStatusEnum.OPEN) }),
+      },
       limit,
       page,
-      relations: [
-        'items',
-        'items.product',
-        'items.product.productMedia',
-        'items.product.productMedia.media',
-        'address',
-      ],
+      relations: ['items', 'items.product'],
     });
 
     const normalizedOrders: OrderDto[] = [];
@@ -215,5 +215,94 @@ export class OrderService {
     });
 
     return { orders: normalizedOrders, totalCount: count };
+  }
+
+  async getOrders(paginationDto: PaginationDto) {
+    const { limit, page } = paginationDto;
+    const { document, count } = await this.orderRepo.find({
+      limit,
+      page,
+      filter: {
+        status: Not(OrderStatusEnum.OPEN),
+      },
+      relations: [
+        'items',
+        'items.product',
+        'items.product.productMedia',
+        'items.product.productMedia.media',
+        'user',
+        'user.addresses',
+      ],
+      order: { updatedAt: 'desc' },
+    });
+
+    const normalizedOrders: OrderDto[] = [];
+
+    document.map((order) => {
+      const orderDto = order.toDto() as unknown as OrderDto;
+      normalizedOrders.push(orderDto);
+    });
+
+    normalizedOrders.map((order) => {
+      const userAddress: UserAddressDto[] = [];
+
+      order.user?.addresses?.map((address) => {
+        if (address?.default) {
+          userAddress.push(address);
+        }
+      });
+
+      if (order.user?.addresses) {
+        order.user.addresses =
+          userAddress.length > 0 ? userAddress : order.user?.addresses;
+      }
+    });
+
+    return { orders: normalizedOrders, totalCount: count };
+  }
+
+  async updateOrder(id: Uuid, updateOrderDto: UpdateOrderDto) {
+    const { status, trackingCode } = updateOrderDto;
+
+    if (!status && !trackingCode) {
+      throw new BadRequestException('status or tracking code is required');
+    }
+
+    const order = await this.orderRepo.findOne({ filter: { uuid: id } });
+
+    if (!order) {
+      throw new NotFoundException('order not found');
+    }
+
+    const updateData: Record<string, any> = {};
+
+    if (status) {
+      updateData.status = status;
+    }
+    if (trackingCode) {
+      updateData.trackingCode = trackingCode;
+    }
+
+    const updatedOrder = await this.orderRepo.update({
+      filter: { id: order.id },
+      updateData,
+    });
+
+    return updatedOrder?.toDto();
+  }
+
+  async getOrderById(id: Uuid) {
+    const order = await this.orderRepo.findOne({ filter: { uuid: id }, relations: [
+      'items',
+      'items.product',
+      'items.product.productMedia',
+      'items.product.productMedia.media',
+      'address',
+      'user',
+    ] });
+    if (!order) {
+      throw new NotFoundException('order not found');
+    }
+    return order.toDto();
   }
 }

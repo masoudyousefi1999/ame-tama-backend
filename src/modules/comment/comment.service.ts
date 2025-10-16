@@ -4,6 +4,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import type { UserEntity } from '../../modules/user/user.entity';
 import { ProductService } from '../../modules/product/product.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import type { CommentDto } from './dto/comment.dto';
 
 @Injectable()
 export class CommentService {
@@ -67,5 +68,52 @@ export class CommentService {
     });
 
     return document.map((comment) => comment.toDto());
+  }
+
+  async getAllComments(paginationDto: PaginationDto) {
+    const { limit, page } = paginationDto;
+
+    const { document, count } = await this.commentRepository.find({
+      relations: [
+        'user',
+        'product',
+        'product.productMedia',
+        'product.productMedia.media',
+      ],
+      order: { createdAt: 'desc' },
+      limit,
+      page,
+    });
+    const normalizedComments: CommentDto[] = [];
+    document.map((comment) => {
+      const commentDto = comment.toDto() as unknown as CommentDto;
+      (commentDto as any).id = comment.id;
+      normalizedComments.push(commentDto);
+      console.log(commentDto);
+    });
+
+    return { comments: normalizedComments, totalCount: count };
+  }
+
+  async publishComment(id: number) {
+    const comment = await this.commentRepository.findOne({
+      filter: { id },
+    });
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    const commentState = !comment.isPublished;
+
+    await this.commentRepository.update({
+      filter: { id },
+      updateData: { isPublished: commentState },
+    });
+
+    const commentDto = comment.toDto() as unknown as CommentDto;
+    commentDto.isPublished = commentState;
+
+    return commentDto;
   }
 }

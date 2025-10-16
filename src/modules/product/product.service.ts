@@ -115,6 +115,21 @@ export class ProductService {
     return dto;
   }
 
+  async findOneByUuid(uuid: Uuid) {
+    const product = await this.findOneProduct({ uuid }, [
+      'detail',
+      'category',
+      'productMedia',
+      'productMedia.media',
+    ]);
+
+    if (!product) {
+      throw new NotFoundException('product not founded');
+    }
+
+    return product.toDto();
+  }
+
   async findByCategory(categorySlug: string, paginationDto: PaginationDto) {
     // Try cache first
     const { page, limit } = paginationDto;
@@ -202,8 +217,10 @@ export class ProductService {
       infos: [],
     };
 
+    const productImageInfos = Array.isArray(infos) ? infos : [infos];
+
     await Promise.all(
-      infos?.map(async (item) => {
+      productImageInfos?.map(async (item) => {
         const { mediaId, order, isDefault = false } = item;
         try {
           const media = await this.mediaService.getMedia({
@@ -217,7 +234,7 @@ export class ProductService {
           }
 
           metaData.infos.push({
-            isDefault,
+            isDefault: isDefault || false,
             mediaId: media.id,
             order,
           });
@@ -256,18 +273,48 @@ export class ProductService {
     if (productDetail) {
       let { character, series, description, specifications } = productDetail;
 
+      const payload: Record<string, any> = {};
+
+      if (character) {
+        payload.character = character;
+      }
+      if (series) {
+        payload.series = series;
+      }
+      if (description) {
+        payload.description = description;
+      }
+      if (specifications) {
+        payload.specifications = specifications?.reduce(
+          (acc, field) => ({ ...acc, [field.key]: field.value }),
+          {} as Record<string, any>,
+        );
+      }
+
       const specObject = specifications?.reduce(
         (acc, field) => ({ ...acc, [field.key]: field.value }),
         {} as Record<string, any>,
       );
 
-      await this.productDetailService.update({
-        productId: product.id,
-        character,
-        description,
-        series,
-        specifications: specObject,
-      });
+      const detail = await this.productDetailService.findOne(product.id);
+
+      if (detail) {
+        await this.productDetailService.update({
+          productId: product.id,
+          character,
+          description,
+          series,
+          specifications: specObject,
+        });
+      } else {
+        await this.productDetailService.create({
+          productId: product.id,
+          character,
+          description,
+          series,
+          specifications: specObject,
+        });
+      }
     }
 
     const updated = await this.productRepo.update({

@@ -17,7 +17,7 @@ export class UploadProductMediaInfo {
 
   @ApiProperty({ type: 'boolean', required: false })
   @BooleanFieldOptional()
-  isDefault?: boolean;
+  isDefault!: boolean;
 }
 
 export class UploadProductMediaDto {

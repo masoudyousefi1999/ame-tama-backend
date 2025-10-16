@@ -17,6 +17,7 @@ import { CreateUserDto } from './dtos/create-user.dto.ts';
 import { UpdatePasswordDto } from './dtos/update-password.dto.ts';
 import { UserDto } from './dtos/user.dto.ts';
 import { generateHash, validateHash } from '../../common/utils.ts';
+import type { PaginationDto } from 'common/dto/pagination.dto.ts';
 
 @Injectable()
 export class UserService {
@@ -118,17 +119,25 @@ export class UserService {
     return user.toDto()!;
   }
 
-  async getUsers() {
+  async getUsers(paginationDto: PaginationDto) {
+    const { page, limit } = paginationDto;
+
     const { document: users, count } = await this.userRepository.find({
       order: { createdAt: 'desc' },
       relations: ['addresses'],
+      page,
+      limit,
     });
 
     if (users.length === 0) {
       return [];
     }
+    const normalizedUsers = users.map((item) => {
+      const defaultAddress = item.addresses.find((address) => address?.default);
+      item.addresses = defaultAddress ? [defaultAddress] : [];
 
-    const normalizedUsers = users.map((item) => item.toDto());
+      return item.toDto();
+    });
 
     return { users: normalizedUsers, totalCount: count };
   }

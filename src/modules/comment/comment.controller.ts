@@ -3,7 +3,9 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -14,6 +16,7 @@ import { Auth } from '../../decorators/http.decorators';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { ApiParam, ApiQuery } from '@nestjs/swagger';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { RoleType } from '../../constants/role-type';
 
 @Controller('comment')
 export class CommentController {
@@ -33,8 +36,21 @@ export class CommentController {
   async getLastComments(@Query() paginationDto: PaginationDto) {
     return this.commentService.getLastComments(paginationDto);
   }
-  
-  
+
+//   @Auth([RoleType.ADMIN])
+  @Get()
+  @ApiQuery({ name: 'paginationDto', type: PaginationDto })
+  async getAllComments(@Query() paginationDto: PaginationDto) {
+    return this.commentService.getAllComments(paginationDto);
+  }
+
+  @Auth([RoleType.ADMIN])
+  @Patch(':id')
+  @ApiParam({ name: 'id', type: Number, required: true })
+  async publishComment(@Param('id', new ParseIntPipe()) id: number) {
+    return this.commentService.publishComment(id);
+  }
+
   @Get(':productId')
   @ApiParam({ name: 'productId', type: String, required: true })
   async getComments(@Param('productId', new ParseUUIDPipe()) productId: Uuid) {

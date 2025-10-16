@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../../decorators/http.decorators';
@@ -16,6 +17,7 @@ import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { RoleType } from '../../constants/role-type';
+import type { PaginationDto } from 'common/dto/pagination.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -56,7 +58,7 @@ export class UserController {
     type: [UserDto],
   })
   @HttpCode(HttpStatus.OK)
-  async getUsers() {
-    return await this.userService.getUsers();
+  async getUsers(@Query() paginationDto: PaginationDto) {
+    return await this.userService.getUsers(paginationDto);
   }
 }
