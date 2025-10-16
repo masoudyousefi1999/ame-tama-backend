@@ -166,6 +166,7 @@ export class ProductService {
       page: paginationDto.page,
       limit: paginationDto.limit,
       relations: ['productMedia', 'productMedia.media'],
+      order: { inStock: 'desc', updatedAt: 'desc' },
     });
 
     const normalizedProducts = products.map((product) => {
@@ -369,7 +370,7 @@ export class ProductService {
       limit,
       page,
       relations: ['productMedia', 'productMedia.media', 'category'],
-      order: { updatedAt: 'desc' },
+      order: { inStock: 'desc', updatedAt: 'desc' },
     });
 
     const normalizedProducts = products.map((item) =>
