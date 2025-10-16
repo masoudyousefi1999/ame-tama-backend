@@ -27,7 +27,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(args: { userId: Uuid; type: TokenType }): Promise<UserEntity> {
-    console.log("validate running")
     // if (
     //   args.type !== TokenType.ACCESS_TOKEN &&
     //   args.type !== TokenType.FINANCE_TOKEN

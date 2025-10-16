@@ -37,7 +37,7 @@ export class CommentController {
     return this.commentService.getLastComments(paginationDto);
   }
 
-//   @Auth([RoleType.ADMIN])
+  @Auth([RoleType.ADMIN])
   @Get()
   @ApiQuery({ name: 'paginationDto', type: PaginationDto })
   async getAllComments(@Query() paginationDto: PaginationDto) {

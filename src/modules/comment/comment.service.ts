@@ -89,7 +89,6 @@ export class CommentService {
       const commentDto = comment.toDto() as unknown as CommentDto;
       (commentDto as any).id = comment.id;
       normalizedComments.push(commentDto);
-      console.log(commentDto);
     });
 
     return { comments: normalizedComments, totalCount: count };

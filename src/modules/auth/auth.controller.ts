@@ -83,7 +83,7 @@ export class AuthController {
 
   @Get('site-info')
   @HttpCode(HttpStatus.OK)
-//   @Auth([RoleType.ADMIN])
+  @Auth([RoleType.ADMIN])
   @ApiOkResponse({ type: Object })
   async getSiteInfo() {
     try {
