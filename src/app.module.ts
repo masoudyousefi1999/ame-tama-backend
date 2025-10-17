@@ -29,6 +29,8 @@ import { ProductDetailModule } from './modules/product-detail/product-detail.mod
 import { FinanceModule } from './modules/finance/finance.module';
 import { SiteMapModule } from './modules/site-map/site-map.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { BlogTopicModule } from './modules/blog-topic/blog-topic.module';
+import { BlogModule } from './modules/blog/blog.module';
 
 @Module({
   imports: [
@@ -94,6 +96,8 @@ import { CommentModule } from './modules/comment/comment.module';
     FinanceModule,
     SiteMapModule,
     CommentModule,
+    BlogTopicModule,
+    BlogModule,
   ],
   providers: [],
 })
