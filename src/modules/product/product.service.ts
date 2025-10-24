@@ -91,12 +91,12 @@ export class ProductService {
 
   async findOne(slug: string) {
     const productCacheKey = `product:slug:${slug}`;
-    // const cachedProduct =
-    //   await this.redisService.getCachedData(productCacheKey);
+    const cachedProduct =
+      await this.redisService.getCachedData(productCacheKey);
 
-    // if (cachedProduct) {
-    //   return JSON.parse(cachedProduct);
-    // }
+    if (cachedProduct) {
+      return JSON.parse(cachedProduct);
+    }
 
     const product = await this.findOneProduct({ slug }, [
       'detail',
@@ -354,12 +354,12 @@ export class ProductService {
   ): Promise<{ products: ProductDto[]; totalCount: number }> {
     const { limit, page } = paginationDto;
 
-    // if (isCacheEnabled) {
-    //   const cachedData = await this.redisService.getCachedData(
-    //     `getProducts-page-${page}-limit-${limit}`,
-    //   );
-    //   if (cachedData) return JSON.parse(cachedData);
-    // }
+    if (isCacheEnabled) {
+      const cachedData = await this.redisService.getCachedData(
+        `getProducts-page-${page}-limit-${limit}`,
+      );
+      if (cachedData) return JSON.parse(cachedData);
+    }
 
     const { document: products, count } = await this.productRepo.find({
       filter: { deletedAt: IsNull() },
