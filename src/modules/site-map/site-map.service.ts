@@ -22,7 +22,7 @@ export class SiteMapService {
       image?: string;
     }[] = [];
 
-    let baseUrl = process.env.BASE_URL || 'https://ame-tama.com';
+    let baseUrl = 'https://ame-tama.com';
 
     baseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
 
