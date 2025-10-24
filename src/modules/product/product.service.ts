@@ -10,7 +10,6 @@ import { CategoryService } from '../../modules/category/category.service';
 import type { CategoryEntity } from '../../modules/category/entity/category.entity';
 import type { ProductEntity } from './entity/product.entity';
 import {
-  In,
   IsNull,
   type FindOptionsRelationByString,
   type FindOptionsRelations,
@@ -24,17 +23,25 @@ import { ProductDetailService } from './../../modules/product-detail/product-det
 import type { SearchDto } from './dto/search-product.dto';
 import { RedisService } from '../../shared/services/redis.service';
 import type { ProductDto } from './dto/product.dto';
+import { ModuleRef } from '@nestjs/core';
 
 @Injectable()
 export class ProductService {
+  private categoryService!: CategoryService;
   constructor(
+    private readonly moduleRef: ModuleRef,
     private productRepo: ProductRepository,
-    private categoryService: CategoryService,
     private mediaService: MediaService,
     private productMediaRepo: ProductMediaRepository,
     private productDetailService: ProductDetailService,
     private redisService: RedisService,
   ) {}
+
+  onModuleInit() {
+    this.categoryService = this.moduleRef.get(CategoryService, {
+        strict: false,
+      });
+  }
 
   async create(CreateProductDto: CreateProductDto) {
     const { category, productDetail, ...rest } = CreateProductDto;
@@ -84,18 +91,19 @@ export class ProductService {
 
   async findOne(slug: string) {
     const productCacheKey = `product:slug:${slug}`;
-    const cachedProduct =
-      await this.redisService.getCachedData(productCacheKey);
+    // const cachedProduct =
+    //   await this.redisService.getCachedData(productCacheKey);
 
-    if (cachedProduct) {
-      return JSON.parse(cachedProduct);
-    }
+    // if (cachedProduct) {
+    //   return JSON.parse(cachedProduct);
+    // }
 
     const product = await this.findOneProduct({ slug }, [
       'detail',
       'category',
       'productMedia',
       'productMedia.media',
+      'tags',
     ]);
 
     if (!product) {
@@ -147,21 +155,9 @@ export class ProductService {
       throw new NotFoundException('category not founded');
     }
 
-    const children = await this.categoryService.findCategory({
-      parentId: category.id,
-    });
-
-    const categoryIds = [category.id];
-
-    if (children.length > 0) {
-      children.forEach((item) => {
-        categoryIds.push(item.id);
-      });
-    }
-
     const { document: products, count } = await this.productRepo.find({
       filter: {
-        categoryId: In(categoryIds),
+        categoryId: category.id,
       },
       page: paginationDto.page,
       limit: paginationDto.limit,
@@ -358,18 +354,18 @@ export class ProductService {
   ): Promise<{ products: ProductDto[]; totalCount: number }> {
     const { limit, page } = paginationDto;
 
-    if (isCacheEnabled) {
-      const cachedData = await this.redisService.getCachedData(
-        `getProducts-page-${page}-limit-${limit}`,
-      );
-      if (cachedData) return JSON.parse(cachedData);
-    }
+    // if (isCacheEnabled) {
+    //   const cachedData = await this.redisService.getCachedData(
+    //     `getProducts-page-${page}-limit-${limit}`,
+    //   );
+    //   if (cachedData) return JSON.parse(cachedData);
+    // }
 
     const { document: products, count } = await this.productRepo.find({
       filter: { deletedAt: IsNull() },
       limit,
       page,
-      relations: ['productMedia', 'productMedia.media', 'category'],
+      relations: ['productMedia', 'productMedia.media', 'category', 'tags'],
       order: { inStock: 'desc', updatedAt: 'desc' },
     });
 
@@ -414,5 +410,57 @@ export class ProductService {
       products: normalizedSimilar,
       totalCount: similarProducts.totalCount,
     };
+  }
+
+  async findProductsByCategoryId(categoryId: number) {
+    const { document: products } = await this.productRepo.find({
+      filter: { categoryId },
+    });
+
+    return products;
+  }
+
+  async findProductsByTagAndCategory(
+    tagSlug: string,
+    categoryId: number,
+    paginationDto: PaginationDto,
+  ) {
+    const { limit, page } = paginationDto;
+
+    const { document: products, count } = await this.productRepo.find({
+      filter: { categoryId, tags: { slug: tagSlug } },
+      relations: ['productMedia', 'productMedia.media'],
+      limit,
+      page,
+      order: { updatedAt: 'desc', inStock: 'desc' },
+    });
+
+    return { products: products, totalCount: count };
+  }
+
+  async findProductsByTag(tagSlug: string, paginationDto: PaginationDto) {
+    const { limit, page } = paginationDto;
+
+    const { document: products, count } = await this.productRepo.find({
+      filter: { tags: { slug: tagSlug } },
+      relations: ['productMedia', 'productMedia.media', 'category'],
+      limit,
+      page,
+      order: { updatedAt: 'desc', inStock: 'desc' },
+    });
+
+    return { products: products, totalCount: count };
+  }
+
+  async getProductForSiteMap() {
+    const { document: products } = await this.productRepo.find({
+      filter: { deletedAt: IsNull() },
+      relations: ['productMedia', 'productMedia.media', 'category', 'tags'],
+      order: { updatedAt: 'desc', inStock: 'desc' },
+      page:1,
+      limit: 1000,
+    });
+
+    return products.map((product) => product.toDto());
   }
 }

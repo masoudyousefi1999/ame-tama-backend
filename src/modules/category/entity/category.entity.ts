@@ -6,13 +6,14 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
-  OneToMany,
   UpdateDateColumn,
   type Relation,
 } from 'typeorm';
 import { CategoryDto } from '../dto/category.dto';
 import { MediaEntity } from '../../../modules/media/media.entity';
+import { TagEntity } from '../../../modules/tag/entity/tag.entity';
 
 @UseDto(CategoryDto)
 @Entity({ name: 'categories' })
@@ -47,16 +48,12 @@ export class CategoryEntity extends AbstractEntity {
   @Column({ type: 'bigint' })
   image?: number;
 
-  @Column({ type: 'bigint' })
   parentId?: number;
 
   @ManyToOne(() => MediaEntity, { nullable: true })
   @JoinColumn({ name: 'image', referencedColumnName: 'id' })
   media?: Relation<MediaEntity>;
 
-  @ManyToOne(() => CategoryEntity, (category) => category.children)
-  parent?: CategoryEntity;
-
-  @OneToMany(() => CategoryEntity, (category) => category.parent)
-  children?: CategoryEntity[];
+  @ManyToMany(() => TagEntity, (tag) => tag.categories)
+  tags?: Relation<TagEntity[]>;
 }

@@ -1,0 +1,159 @@
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { TagRepository } from './tag.repository';
+import type { CreateTagDto } from './dto/create-tag.dto';
+import { MediaService } from '../../modules/media/media.service';
+import { IsNull, Not, Repository, type FindOptionsWhere } from 'typeorm';
+import type { TagEntity } from './entity/tag.entity';
+import { CategoryService } from '../category/category.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ProductTagEntity } from './entity/product-tag.entity';
+import { ProductService } from '../../modules/product/product.service';
+import type { PaginationDto } from 'common/dto/pagination.dto';
+import type { TagDto } from './dto/tag.dto';
+
+@Injectable()
+export class TagService {
+  constructor(
+    private tagRepository: TagRepository,
+    private mediaService: MediaService,
+    private categoryService: CategoryService,
+    @InjectRepository(ProductTagEntity)
+    private productTagRepo: Repository<ProductTagEntity>,
+    private productService: ProductService,
+  ) {
+    // this.transferCategoryToTag();
+  }
+
+  async createTag(createTagDto: CreateTagDto) {
+    const { imageId, slug, ...rest } = createTagDto;
+
+    const isSlugExist = await this.findOneTag({ slug });
+
+    if (isSlugExist) {
+      throw new BadRequestException('slug already exists');
+    }
+
+    let currentImageId = null;
+
+    if (imageId) {
+      const media = await this.mediaService.getMedia({ uuid: imageId });
+
+      if (!media) {
+        throw new NotFoundException('media not founded');
+      }
+
+      currentImageId = media.id;
+    }
+
+    const tag = await this.tagRepository.create({
+      ...rest,
+      slug,
+      ...(currentImageId ? { imageId: currentImageId } : {}),
+    });
+
+    return tag.toDto();
+  }
+
+  async findAllTags(paginationDto: PaginationDto) {
+    const { page, limit } = paginationDto;
+
+    const { document, count } = await this.tagRepository.find({
+      filter: { deletedAt: IsNull() },
+      relations: ['image'],
+      page,
+      limit,
+    });
+
+    if (document.length === 0) {
+      return {
+        tags: [],
+        totalCount: 0,
+      };
+    }
+
+    const normalizedTags = document.map((item) => item.toDto());
+
+    return { tags: normalizedTags, totalCount: count };
+  }
+
+  async findProductByTagSlug(slug: string, paginationDto: PaginationDto) {
+    const tag = await this.tagRepository.findOne({
+      filter: { slug, deletedAt: IsNull(), products: { deletedAt: IsNull() } },
+      relations: ['image', 'categories', 'categories.media'],
+    });
+
+    if (!tag) {
+      throw new NotFoundException('tag not found');
+    }
+
+    const { products, totalCount } =
+      await this.productService.findProductsByTag(slug, paginationDto);
+
+
+    tag.products = products.map((product) => product.toDto()) as any;
+    tag.categories = tag.categories?.map((category) => category.toDto()) as any;
+
+    const tagDto = tag.toDto();
+
+    return { tag: tagDto, totalCount };
+  }
+
+  async findOneTag(filter: FindOptionsWhere<TagEntity>) {
+    return await this.tagRepository.findOne({
+      filter: { ...filter, deletedAt: IsNull() },
+    });
+  }
+
+  async transferCategoryToTag() {
+    const { document: tags, count: _ } = await this.tagRepository.find({});
+
+    if (tags.length !== 0) {
+      return;
+    }
+
+    const categories = await this.categoryService.findCategory({
+      parentId: Not(IsNull()),
+    });
+
+    for (const category of categories) {
+      const tag = await this.tagRepository.create({
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        imageId: category.image,
+      });
+
+      const products = await this.productService.findProductsByCategoryId(
+        category.id,
+      );
+
+      for (const product of products) {
+        const currentProductTag = this.productTagRepo.create({
+          productId: product.id,
+          tagId: tag.id,
+        });
+
+        await this.productTagRepo.save(currentProductTag);
+
+        await this.productTagRepo.query('update product set category_id = 1;');
+      }
+    }
+
+    return;
+  }
+
+  async getTagForSiteMap() {
+    const { document: tags } = await this.tagRepository.find({
+      filter: { deletedAt: IsNull(), categories: { deletedAt: IsNull() } },
+      relations: ['image', 'categories'],
+      page:1,
+      limit: 1000,
+    });
+
+    return tags.map((tag) => tag.toDto()) as TagDto[];
+  }
+}

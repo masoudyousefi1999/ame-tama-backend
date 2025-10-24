@@ -13,6 +13,7 @@ import { UserEntity } from '../user/user.entity';
 import { BlogTopicEntity } from '../blog-topic/blog-topic.entity';
 import { UseDto } from '../../decorators/use-dto.decorator';
 import { BlogDto } from './dto/blog.dto';
+import { MediaEntity } from '../media/media.entity';
 
 @Entity({ name: 'blog' })
 @UseDto(BlogDto)
@@ -41,22 +42,33 @@ export class BlogEntity extends AbstractEntity<BlogDto> {
   @Column({ type: 'text' })
   content!: string;
 
+  @Column({ type: 'text' })
+  slug!: string;
+
   @Column({ type: 'bigint' })
   userId!: number;
 
   @Column({ type: 'bigint' })
   topicId!: number;
 
+  @Column({ type: 'bigint', nullable: true })
+  imageId?: number;
+
   @Column({ type: 'boolean', default: false })
   isPublished!: boolean;
 
   @Column({ type: 'timestamp' })
-  publishedAt!: Date;
+  publishedAt?: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.id)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user?: Relation<UserEntity>;
 
-  @ManyToOne(() => BlogTopicEntity, (topic) => topic.blogs)
+  @ManyToOne(() => BlogTopicEntity, (topic) => topic.id)
+  @JoinColumn({ name: 'topic_id', referencedColumnName: 'id' })
   topic?: Relation<BlogTopicEntity>;
+
+  @ManyToOne(() => MediaEntity, { nullable: true })
+  @JoinColumn({ name: 'image_id', referencedColumnName: 'id' })
+  image?: Relation<MediaEntity>;
 }

@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -15,6 +16,8 @@ import { ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import { CategoryDto } from './dto/category.dto';
 import { Auth } from '../../decorators/http.decorators';
 import { RoleType } from '../../constants/role-type';
+import { ProductDto } from '../../modules/product/dto/product.dto';
+import type { PaginationDto } from 'common/dto/pagination.dto';
 
 @Controller('category')
 export class CategoryController {
@@ -35,6 +38,20 @@ export class CategoryController {
   })
   findAll() {
     return this.categoryService.findAll();
+  }
+
+  @Get(':slug/:tagSlug')
+  @ApiParam({ name: 'slug', type: String, required: true })
+  @ApiParam({ name: 'tagSlug', type: String, required: true })
+  @ApiOkResponse({
+    type: [ProductDto],
+  })
+  findProductsByCategoryAndTag(
+    @Param('slug') slug: string,
+    @Param('tagSlug') tagSlug: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.categoryService.findProductsByCategoryAndTag(slug, tagSlug, paginationDto);
   }
 
   @ApiParam({ name: 'slug', type: String, required: true })

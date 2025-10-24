@@ -31,6 +31,7 @@ import { SiteMapModule } from './modules/site-map/site-map.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { BlogTopicModule } from './modules/blog-topic/blog-topic.module';
 import { BlogModule } from './modules/blog/blog.module';
+import { TagModule } from './modules/tag/tag.module';
 
 @Module({
   imports: [
@@ -98,6 +99,7 @@ import { BlogModule } from './modules/blog/blog.module';
     CommentModule,
     BlogTopicModule,
     BlogModule,
+    TagModule,
   ],
   providers: [],
 })

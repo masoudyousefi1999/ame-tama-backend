@@ -1,4 +1,6 @@
 import {
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -7,10 +9,12 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryRepository } from './category.repository';
 import { MediaService } from '../../modules/media/media.service';
-import { type FindOptionsWhere } from 'typeorm';
+import { IsNull, type FindOptionsWhere } from 'typeorm';
 import type { CategoryEntity } from './entity/category.entity';
 import type { CategoryDto } from './dto/category.dto';
 import { RedisService } from '../../shared/services/redis.service';
+import { ProductService } from '../../modules/product/product.service';
+import type { PaginationDto } from 'common/dto/pagination.dto';
 
 @Injectable()
 export class CategoryService {
@@ -18,6 +22,8 @@ export class CategoryService {
     private categoryRepository: CategoryRepository,
     private mediaService: MediaService,
     private redisService: RedisService,
+    @Inject(forwardRef(() => ProductService))
+    private productService: ProductService,
   ) {}
   async create(createCategoryDto: CreateCategoryDto) {
     const { image, parent, ...rest } = createCategoryDto;
@@ -63,7 +69,10 @@ export class CategoryService {
     if (isCached) {
       return JSON.parse(isCached);
     }
-    const categories = await this.categoryRepository.findAll();
+    const { document: categories } = await this.categoryRepository.find({
+      filter: { deletedAt: IsNull() },
+      relations: ['media', 'tags', 'tags.image'],
+    });
 
     const normalizedCategories = categories?.map((item) =>
       item.toDto(),
@@ -81,7 +90,7 @@ export class CategoryService {
   async findOne(slug: string) {
     const category = await this.categoryRepository.findOne({
       filter: { slug },
-      relations: ['media', 'children', 'children.media', 'parent'],
+      relations: ['media', 'tags', 'tags.image'],
     });
 
     if (!category) {
@@ -155,5 +164,39 @@ export class CategoryService {
     });
 
     return document;
+  }
+  async findProductsByCategoryAndTag(categorySlug: string, tagSlug: string, paginationDto: PaginationDto) {
+    const category = await this.categoryRepository.findOne({
+      filter: { slug: categorySlug, tags: { slug: tagSlug } },
+      relations: ['tags', 'tags.image'],
+    });
+
+    if (!category) { 
+      throw new NotFoundException('category not founded');
+    }
+
+    const { products, totalCount } =
+      await this.productService.findProductsByTagAndCategory(tagSlug, category.id, paginationDto);
+
+    products.forEach((product: any) => {
+      product.category = category;
+      product.tags = category.tags;
+    });
+
+    return {
+      products: products.map((product: any) => product.toDto()),
+      totalCount,
+    };
+  }
+
+  async getCategoryForSiteMap() {
+    const { document: categories } = await this.categoryRepository.find({
+      filter: { deletedAt: IsNull() },
+      relations: ['media'],
+      page:1,
+      limit: 1000,
+    });
+
+    return categories.map((category) => category.toDto()) as CategoryDto[];
   }
 }

@@ -21,7 +21,7 @@
     "migration:create": "yarn run typeorm migration:create",
     "generate": "nest g -c awesome-nestjs-schematics --no-spec",
     "g": "yarn generate",
-    "migration:revert": "yarn run typeorm migration:revert",
+    "migration:revert": "yarn run typeorm migration:revert -d ormconfig.ts",
     "migration:run": "yarn run typeorm migration:run -d ormconfig.ts",
     "schema:drop": "yarn run typeorm schema:drop -d ormconfig.ts",
     "migration:refresh": "yarn schema:drop &&  yarn migration:run",

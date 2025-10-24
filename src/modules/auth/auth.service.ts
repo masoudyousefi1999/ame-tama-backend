@@ -31,9 +31,7 @@ export class AuthService {
     private userRepository: Repository<UserEntity>,
     private otpRepository: OtpRepository,
     private redisService: RedisService,
-  ) {
-    this.getSiteInfo();
-  }
+  ) {}
 
   setCookie(res: Response, name: string, value: string, maxAge: number) {
     res.cookie(name, value, {

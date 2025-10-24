@@ -1,25 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryService } from '../../modules/category/category.service';
 import { ProductService } from '../../modules/product/product.service';
-import type { ProductDto } from 'modules/product/dto/product.dto';
-import type { CategoryDto } from 'modules/category/dto/category.dto';
+import type { CategoryDto } from '../../modules/category/dto/category.dto';
+import { TagService } from '../../modules/tag/tag.service';
+import type { TagDto } from 'modules/tag/dto/tag.dto';
 
 @Injectable()
 export class SiteMapService {
   constructor(
     private readonly productService: ProductService,
     private readonly categoryService: CategoryService,
+    private readonly tagService: TagService,
   ) {}
 
   async getSiteMap() {
-    const products = await this.productService.getProducts(
-      {
-        page: 1,
-        limit: 1000,
-      },
-      false,
-    );
-
     const links: {
       url?: string;
       lastModified: Date;
@@ -28,44 +22,75 @@ export class SiteMapService {
       image?: string;
     }[] = [];
 
-    products.products.map((product: ProductDto) => {
-      const image = (product as any).productMedia[0]?.url || null;
+    let baseUrl = process.env.BASE_URL || 'https://ame-tama.com';
 
-      links.push({
-        url: `https://ame-tama.com/product/${product.slug}`,
-        lastModified: product.updatedAt,
-        changeFrequency: 'daily',
-        priority: 0.8,
-        ...(image && { image }),
-      });
-    });
+    baseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
 
-    const categories = await this.categoryService.findAll();
-    const figureImage = categories[0]?.image || null;
+    const products = await this.productService.getProductForSiteMap();
+    const categories = await this.categoryService.getCategoryForSiteMap();
+    const tags = await this.tagService.getTagForSiteMap();
+
     // categories page
-    links.push({
-      url: `https://ame-tama.com/category/figures`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-      ...(figureImage && { image: figureImage }),
-    });
-
-    (categories[0] as any)?.children.map((category: CategoryDto) => {
-      const image = category?.image;
-
+    categories.forEach((category: CategoryDto) => {
       links.push({
-        url: `https://ame-tama.com/category/figures/${category.slug}`,
+        url: `${baseUrl}${category.slug}`,
         lastModified: category.updatedAt || new Date(),
         changeFrequency: 'weekly',
         priority: 0.8,
-        ...(image && { image }),
+        image: category.image,
       });
     });
 
+    // /category/tag  pages
+    tags.forEach((tag: TagDto) => {
+      tag.categories?.forEach((category: CategoryDto) => {
+        links.push({
+          url: `${baseUrl}${category.slug}/${tag.slug}`,
+          lastModified: tag.updatedAt || new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.8,
+          image: tag.image?.url,
+        });
+      });
+    });
+
+    // /anime page
+    links.push({
+      url: `${baseUrl}anime`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    });
+
+    // /anime/tag pages
+    tags.forEach((tag: TagDto) => {
+      links.push({
+        url: `${baseUrl}anime/${tag.slug}`,
+        lastModified: tag.updatedAt || new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+        image: tag.image?.url,
+      });
+    });
+
+    // products page
+    products.forEach((product: any) => {
+      const categorySlug = product.category?.slug;
+      const tagSlug = product?.tags?.[0]?.slug;
+
+      if (categorySlug && tagSlug) {
+        links.push({
+          url: `${baseUrl}${categorySlug}/${tagSlug}/${product.slug}`,
+          lastModified: product?.updatedAt || new Date(),
+          changeFrequency: 'daily',
+          priority: 0.8,
+          image: product?.productMedia?.[0]?.url || null,
+        });
+      }
+    });
     // shop page
     links.push({
-      url: `https://ame-tama.com/shop`,
+      url: `${baseUrl}shop`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1,
@@ -73,7 +98,7 @@ export class SiteMapService {
 
     // about page
     links.push({
-      url: `https://ame-tama.com/about`,
+      url: `${baseUrl}about`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.5,
@@ -81,7 +106,7 @@ export class SiteMapService {
 
     // contact page
     links.push({
-      url: `https://ame-tama.com/contact`,
+      url: `${baseUrl}contact`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.5,
@@ -89,7 +114,7 @@ export class SiteMapService {
 
     // faq page
     links.push({
-      url: `https://ame-tama.com/faq`,
+      url: `${baseUrl}faq`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.5,
@@ -97,7 +122,7 @@ export class SiteMapService {
 
     // main page
     links.push({
-      url: `https://ame-tama.com`,
+      url: baseUrl,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1,

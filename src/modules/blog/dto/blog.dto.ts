@@ -2,11 +2,13 @@ import { AbstractDto } from '../../../common/dto/abstract.dto';
 import {
   BooleanField,
   ClassField,
+  ClassFieldOptional,
   DateField,
   StringField,
 } from '../../../decorators/field.decorators';
 import { UserDto } from '../../user/dtos/user.dto';
-import { BlogTopicDto } from '../../blog-topic/dto/blog-topic.dto';
+import type { BlogTopicDto } from '../../blog-topic/dto/blog-topic.dto';
+import { MediaDto } from '../../media/dtos/media.dto';
 import type { BlogEntity } from '../blog.entity';
 
 export class BlogDto extends AbstractDto {
@@ -19,8 +21,10 @@ export class BlogDto extends AbstractDto {
   @ClassField(() => UserDto)
   user?: UserDto;
 
-  @ClassField(() => BlogTopicDto)
   topic?: BlogTopicDto;
+
+  @ClassFieldOptional(() => MediaDto)
+  image?: MediaDto;
 
   @BooleanField()
   isPublished!: boolean;
@@ -33,8 +37,9 @@ export class BlogDto extends AbstractDto {
     this.title = blog.title;
     this.content = blog.content;
     this.user = blog.user ? new UserDto(blog.user) : undefined;
-    this.topic = blog.topic ? new BlogTopicDto(blog.topic) : undefined;
     this.isPublished = blog.isPublished;
     this.publishedAt = blog.publishedAt;
+    this.image = blog.image ? new MediaDto(blog.image) : undefined;
+    this.topic = blog.topic as BlogTopicDto;
   }
 }

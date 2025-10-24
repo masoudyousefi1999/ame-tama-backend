@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   UpdateDateColumn,
@@ -16,6 +17,7 @@ import { ProductDto } from '../dto/product.dto';
 import { ProductMediaEntity } from './product-media.entity';
 import { ProductDetailEntity } from '../../../modules/product-detail/entity/product-detail.entity';
 import { CommentEntity } from '../../../modules/comment/entity/comment.entity';
+import { TagEntity } from '../../../modules/tag/entity/tag.entity';
 
 @Entity({ name: 'products' })
 @UseDto(ProductDto)
@@ -73,4 +75,7 @@ export class ProductEntity extends AbstractEntity {
 
   @OneToMany(() => CommentEntity, (comment) => comment.product)
   comments!: Relation<CommentEntity[]>;
+
+  @ManyToMany(() => TagEntity, (tag) => tag.products)
+  tags?: Relation<TagEntity[]>;
 }

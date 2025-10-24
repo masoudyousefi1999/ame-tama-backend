@@ -5,9 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryEntity } from './entity/category.entity';
 import { CategoryRepository } from './category.repository';
 import { MediaModule } from '../../modules/media/media.module';
+import { ProductModule } from '../../modules/product/product.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CategoryEntity]), MediaModule],
+  imports: [
+    TypeOrmModule.forFeature([CategoryEntity]),
+    MediaModule,
+    ProductModule,
+  ],
   controllers: [CategoryController],
   providers: [CategoryService, CategoryRepository],
   exports: [CategoryService],

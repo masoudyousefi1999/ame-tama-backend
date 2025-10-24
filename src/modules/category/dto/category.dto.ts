@@ -1,3 +1,4 @@
+import { TagDto } from '../../../modules/tag/dto/tag.dto';
 import { AbstractDto } from '../../../common/dto/abstract.dto';
 import {
   ClassFieldOptional,
@@ -23,11 +24,8 @@ export class CategoryDto extends AbstractDto {
   @StringFieldOptional()
   image?: string;
 
-  @ClassFieldOptional(() => CategoryDto)
-  parent?: CategoryDto;
-
-  @ClassFieldOptional(() => CategoryDto)
-  children?: CategoryDto[];
+  @ClassFieldOptional(() => TagDto)
+  tags?: TagDto[];
 
   constructor(category: CategoryEntity) {
     super(category);
@@ -35,12 +33,7 @@ export class CategoryDto extends AbstractDto {
     this.name = category.name;
     this.slug = category.slug;
     this.description = category?.description;
-    this.parent = category?.parent
-      ? new CategoryDto(category.parent)
-      : undefined;
-    this.children = category?.children
-      ? category.children.map((child) => new CategoryDto(child))
-      : [];
     this.image = category?.media?.url;
+    this.tags = category?.tags?.map((tag) => new TagDto(tag)) || [];
   }
 }
