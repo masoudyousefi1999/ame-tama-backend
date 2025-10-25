@@ -39,8 +39,8 @@ export class ProductService {
 
   onModuleInit() {
     this.categoryService = this.moduleRef.get(CategoryService, {
-        strict: false,
-      });
+      strict: false,
+    });
   }
 
   async create(CreateProductDto: CreateProductDto) {
@@ -457,10 +457,35 @@ export class ProductService {
       filter: { deletedAt: IsNull() },
       relations: ['productMedia', 'productMedia.media', 'category', 'tags'],
       order: { updatedAt: 'desc', inStock: 'desc' },
-      page:1,
+      page: 1,
       limit: 1000,
     });
 
     return products.map((product) => product.toDto());
+  }
+
+  async getProductsForAi() {
+    const { document: products } = await this.productRepo.find({
+      filter: { deletedAt: IsNull(), inStock: true },
+      relations: ['productMedia', 'productMedia.media', 'category', 'tags'],
+      order: { updatedAt: 'desc', inStock: 'desc' },
+      page: 1,
+      limit: 1000,
+    });
+
+    const productDetails: any[] = [];
+
+    products.forEach((product) => {
+      const categorySlug = product?.category?.slug;
+      const tagSlug = product?.tags?.[0]?.slug;
+
+      productDetails.push({
+        name: product.name,
+        slug: product.slug,
+        url: `https://ame-tama.com/${categorySlug}/${tagSlug}/${product.slug}`,
+      });
+    });
+
+    return productDetails;
   }
 }

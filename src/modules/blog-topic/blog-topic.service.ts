@@ -83,7 +83,7 @@ export class BlogTopicService {
         filter: { deletedAt: IsNull() },
         page,
         limit,
-        relations: ['image', 'blogs', 'blogs.image'],
+        relations: ['image'],
         order: { updatedAt: 'desc' },
       },
     );
@@ -157,5 +157,14 @@ export class BlogTopicService {
     });
 
     return blogTopic;
+  }
+  async getTopicForSiteMap() {
+    const { document: topics, count: _ } = await this.blogTopicRepository.find({
+      filter: { deletedAt: IsNull() },
+      page: 1,
+      limit: 1000,
+      relations: ['image', 'blogs', 'blogs.image'],
+    });
+    return topics;
   }
 }

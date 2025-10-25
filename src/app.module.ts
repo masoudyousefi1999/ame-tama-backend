@@ -32,6 +32,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { BlogTopicModule } from './modules/blog-topic/blog-topic.module';
 import { BlogModule } from './modules/blog/blog.module';
 import { TagModule } from './modules/tag/tag.module';
+import { AiModule } from './modules/ai/ai.module';
 
 @Module({
   imports: [
@@ -100,6 +101,7 @@ import { TagModule } from './modules/tag/tag.module';
     BlogTopicModule,
     BlogModule,
     TagModule,
+    AiModule,
   ],
   providers: [],
 })

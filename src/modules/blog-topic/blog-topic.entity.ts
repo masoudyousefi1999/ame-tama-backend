@@ -6,6 +6,8 @@ import {
   CreateDateColumn,
   type Relation,
   OneToMany,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { AbstractEntity } from '../../common/abstract.entity';
 import { UseDto } from '../../decorators/use-dto.decorator';
@@ -49,6 +51,7 @@ export class BlogTopicEntity extends AbstractEntity {
   @OneToMany(() => BlogEntity, (blog) => blog.topic)
   blogs?: Relation<BlogEntity[]>;
 
-  @OneToMany(() => BlogEntity, (blog) => blog.topic)
+  @ManyToOne(() => MediaEntity)
+  @JoinColumn({ name: 'image_id', referencedColumnName: 'id' })
   image?: Relation<MediaEntity>;
 }

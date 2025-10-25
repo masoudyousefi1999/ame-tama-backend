@@ -6,12 +6,14 @@ import { BlogEntity } from './blog.entity';
 import { BlogController } from './blog.controller';
 import { MediaModule } from '../../modules/media/media.module';
 import { BlogTopicModule } from '../../modules/blog-topic/blog-topic.module';
+import { AiModule } from '../ai/ai.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([BlogEntity]),
     MediaModule,
     BlogTopicModule,
+    AiModule,
   ],
   providers: [BlogService, BlogRepository],
   controllers: [BlogController],

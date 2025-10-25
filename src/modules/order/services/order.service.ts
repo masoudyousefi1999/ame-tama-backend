@@ -19,6 +19,7 @@ import type { OrderDto } from '../dto/order.dto';
 import { UserAddressService } from '../../../modules/user-address/user-address.service';
 import type { UserAddressDto } from 'modules/user-address/dto/user-address.dto';
 import type { UpdateOrderDto } from '../dto/update-order.dto';
+import { sendProductSms } from '../../../common/utils';
 
 @Injectable()
 export class OrderService {
@@ -272,7 +273,10 @@ export class OrderService {
       throw new BadRequestException('status or tracking code is required');
     }
 
-    const order = await this.orderRepo.findOne({ filter: { uuid: id } });
+    const order = await this.orderRepo.findOne({
+      filter: { uuid: id },
+      relations: ['user'],
+    });
 
     if (!order) {
       throw new NotFoundException('order not found');
@@ -285,6 +289,11 @@ export class OrderService {
     }
     if (trackingCode) {
       updateData.trackingCode = trackingCode;
+      try {
+        sendProductSms(order.user?.phone!);
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     const updatedOrder = await this.orderRepo.update({

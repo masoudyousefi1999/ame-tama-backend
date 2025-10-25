@@ -21,6 +21,9 @@ export class BlogDto extends AbstractDto {
   @ClassField(() => UserDto)
   user?: UserDto;
 
+  @StringField()
+  slug!: string;
+
   topic?: BlogTopicDto;
 
   @ClassFieldOptional(() => MediaDto)
@@ -41,5 +44,6 @@ export class BlogDto extends AbstractDto {
     this.publishedAt = blog.publishedAt;
     this.image = blog.image ? new MediaDto(blog.image) : undefined;
     this.topic = blog.topic as BlogTopicDto;
+    this.slug = blog.slug;
   }
 }

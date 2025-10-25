@@ -63,8 +63,7 @@ export async function sendSms(phone: string, code: string): Promise<any> {
     {
       method: 'POST',
       headers: {
-        apikey:
-          'OWVmYjViOGItNDU1Mi00MWJjLTlkZTYtODlhMTcwYWRlNjJiZDljNjBkNjI3M2ZhNTNiODI3ZTY2ZjY3NGJkZDQ3ZGI=',
+        apikey: process.env.SMS_API_KEY as string,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(bodyData),
@@ -129,4 +128,42 @@ export function generateOtp(lengthNumber: number): string {
     otp += digits[Math.floor(Math.random() * digits.length)];
   }
   return otp;
+}
+
+export async function SuccessPurchaseSms(phone: string) {
+  const bodyData = {
+    code: '6cx13whs8iwraba',
+    sender: '+983000505',
+    recipient: phone,
+  };
+
+  await fetch('https://api2.ippanel.com/api/v1/sms/pattern/normal/send', {
+    method: 'POST',
+    headers: {
+      apikey: process.env.SMS_API_KEY as string,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(bodyData),
+  });
+
+  return;
+}
+
+export async function sendProductSms(phone: string) {
+  const bodyData = {
+    code: 'p6gw5tgmev050re',
+    sender: '+983000505',
+    recipient: phone,
+  };
+
+  await fetch('https://api2.ippanel.com/api/v1/sms/pattern/normal/send', {
+    method: 'POST',
+    headers: {
+      apikey: process.env.SMS_API_KEY as string,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(bodyData),
+  });
+
+  return;
 }

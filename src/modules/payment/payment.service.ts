@@ -15,6 +15,7 @@ import { PaymentEntity } from './entity/payment.entity';
 import { WalletService } from '../../modules/wallet/wallet.service';
 import axios from 'axios';
 import { calculateShaparakFees } from './shaparak/shaparak.fee';
+import { SuccessPurchaseSms } from '../../common/utils';
 
 @Injectable()
 export class PaymentService {
@@ -191,6 +192,12 @@ export class PaymentService {
             payment,
             user,
           });
+
+          try {
+            SuccessPurchaseSms(user.phone!);
+          } catch (error) {
+            console.log(error);
+          }
         }
       }
 

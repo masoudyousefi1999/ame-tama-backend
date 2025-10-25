@@ -4,6 +4,9 @@ import { ProductService } from '../../modules/product/product.service';
 import type { CategoryDto } from '../../modules/category/dto/category.dto';
 import { TagService } from '../../modules/tag/tag.service';
 import type { TagDto } from 'modules/tag/dto/tag.dto';
+import { BlogTopicService } from '../../modules/blog-topic/blog-topic.service';
+import type { BlogEntity } from '../../modules/blog/blog.entity';
+import type { BlogTopicEntity } from '../../modules/blog-topic/blog-topic.entity';
 
 @Injectable()
 export class SiteMapService {
@@ -11,6 +14,7 @@ export class SiteMapService {
     private readonly productService: ProductService,
     private readonly categoryService: CategoryService,
     private readonly tagService: TagService,
+    private readonly topicService: BlogTopicService,
   ) {}
 
   async getSiteMap() {
@@ -29,6 +33,7 @@ export class SiteMapService {
     const products = await this.productService.getProductForSiteMap();
     const categories = await this.categoryService.getCategoryForSiteMap();
     const tags = await this.tagService.getTagForSiteMap();
+    const topics = await this.topicService.getTopicForSiteMap();
 
     // categories page
     categories.forEach((category: CategoryDto) => {
@@ -88,6 +93,37 @@ export class SiteMapService {
         });
       }
     });
+
+    
+    // topic page
+    links.push({
+      url: `${baseUrl}topic`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    });
+
+    // topics page
+    topics.forEach((topic: BlogTopicEntity) => {
+      links.push({
+        url: `${baseUrl}topic/${topic.slug}`,
+        lastModified: topic.updatedAt || new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+        image: topic.image?.url,
+      });
+
+      topic.blogs?.forEach((blog: BlogEntity) => {
+        links.push({
+          url: `${baseUrl}topic/${topic.slug}/${blog.slug}`,
+          lastModified: blog.updatedAt || new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.8,
+          image: blog.image?.url,
+        });
+      });
+    });
+
     // shop page
     links.push({
       url: `${baseUrl}shop`,
