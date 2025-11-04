@@ -94,13 +94,12 @@ export class SiteMapService {
       }
     });
 
-    
     // topic page
     links.push({
       url: `${baseUrl}topic`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.8,
+      priority: 0.5,
     });
 
     // topics page
@@ -108,8 +107,8 @@ export class SiteMapService {
       links.push({
         url: `${baseUrl}topic/${topic.slug}`,
         lastModified: topic.updatedAt || new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.8,
+        changeFrequency: 'daily',
+        priority: 0.9,
         image: topic.image?.url,
       });
 
@@ -117,8 +116,8 @@ export class SiteMapService {
         links.push({
           url: `${baseUrl}topic/${topic.slug}/${blog.slug}`,
           lastModified: blog.updatedAt || new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.8,
+          changeFrequency: 'monthly',
+          priority: 0.5,
           image: blog.image?.url,
         });
       });
