@@ -33,6 +33,7 @@ import { BlogTopicModule } from './modules/blog-topic/blog-topic.module';
 import { BlogModule } from './modules/blog/blog.module';
 import { TagModule } from './modules/tag/tag.module';
 import { AiModule } from './modules/ai/ai.module';
+import { RssModule } from './modules/rss/rss.module';
 
 @Module({
   imports: [
@@ -102,6 +103,7 @@ import { AiModule } from './modules/ai/ai.module';
     BlogModule,
     TagModule,
     AiModule,
+    RssModule,
   ],
   providers: [],
 })

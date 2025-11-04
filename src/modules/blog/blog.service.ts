@@ -68,12 +68,17 @@ export class BlogService {
 
     topicId = currentTopic.id;
 
+    const isPublishedAutomatically = user.id === 1 ? true : false;
+
     const blog = await this.blogRepository.create({
       ...rest,
       topicId,
       userId: user.id,
       slug,
       ...(imageId ? { imageId } : {}),
+      ...(isPublishedAutomatically
+        ? { isPublished: true, publishedAt: new Date() }
+        : {}),
     });
 
     return blog.toDto();
