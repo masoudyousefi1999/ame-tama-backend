@@ -14,12 +14,15 @@ import type { PaginationDto } from 'common/dto/pagination.dto';
 import type { UpdateBlogTopicDto } from './dto/update-blog-topic.dto';
 import { IsNull, type FindOptionsWhere } from 'typeorm';
 import type { BlogTopicEntity } from './blog-topic.entity';
+import { BlogRepository } from '../../modules/blog/blog.repository';
+import type { BlogDto } from '../../modules/blog/dto/blog.dto';
 
 @Injectable()
 export class BlogTopicService {
   constructor(
     private readonly blogTopicRepository: BlogTopicRepository,
     private readonly mediaService: MediaService,
+    private readonly blogRepository: BlogRepository,
   ) {}
 
   async createBlogTopic(
@@ -54,8 +57,9 @@ export class BlogTopicService {
     return blogTopic.toDto() as BlogTopicDto;
   }
 
-  async getBlogTopic(getBlogTopicDto: GetBlogTopicDto): Promise<BlogTopicDto> {
+  async getBlogTopic(getBlogTopicDto: GetBlogTopicDto, paginationDto: PaginationDto) {
     const { uuid, slug } = getBlogTopicDto;
+    const { page, limit } = paginationDto;
 
     const blogTopic = await this.blogTopicRepository.findOne({
       filter: {
@@ -63,14 +67,30 @@ export class BlogTopicService {
         ...(slug ? { slug } : {}),
         deletedAt: IsNull(),
       },
-      relations: ['image', 'blogs', 'blogs.image'],
+      relations: ['image'],
     });
 
     if (!blogTopic) {
       throw new NotFoundException('blog topic not founded');
     }
 
-    return blogTopic.toDto() as BlogTopicDto;
+    const { document: blogs, count } = await this.blogRepository.find({
+      filter: { topicId: blogTopic.id },
+      relations: ['image'],
+      page,
+      limit,
+      order: { publishedAt: 'desc' },
+    });
+
+    const normalizedBlogs: BlogDto[] = [];
+
+
+    blogs.map((blog) => {
+      blog.topic = blogTopic;
+      normalizedBlogs.push(blog.toDto() as BlogDto);
+    });
+
+    return { blogs: normalizedBlogs, totalCount: count };
   }
 
   async getBlogTopics(

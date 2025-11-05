@@ -22,17 +22,22 @@ import type { UpdateBlogDto } from './dto/update-blog.dto';
 import { RoleType } from '../../constants/role-type';
 import { BlogTopicDto } from '../../modules/blog-topic/dto/blog-topic.dto';
 import { BlogTopicEntity } from '../../modules/blog-topic/blog-topic.entity';
-import { AiService } from '../ai/ai.service';
-import { MediaType } from '../../constants/media-type';
-
+import { ModuleRef } from '@nestjs/core';
 @Injectable()
 export class BlogService {
+  private blogTopicService!: BlogTopicService;
+
   constructor(
     private readonly blogRepository: BlogRepository,
     private readonly mediaService: MediaService,
-    private readonly blogTopicService: BlogTopicService,
-    private readonly aiService: AiService,
+    private readonly moduleRef: ModuleRef,
   ) {}
+
+  async onModuleInit() {
+    this.blogTopicService = await this.moduleRef.get(BlogTopicService, {
+      strict: false,
+    });
+  }
 
   async createBlog(createBlogDto: CreateBlogDto, user: UserEntity) {
     const { image, topic, slug, ...rest } = createBlogDto;
@@ -253,54 +258,6 @@ export class BlogService {
     });
 
     return blog;
-  }
-
-  async createBlogWithAi() {
-    try {
-      const latestNews = await this.aiService.getAnimeLatestNews();
-      let mediaId = null;
-
-      if (!latestNews) {
-        return;
-      }
-
-      if (latestNews.image_url) {
-        const imageBuffer = await this.aiService.getImageBuffer(
-          latestNews.image_url,
-        );
-
-        const media = await this.mediaService.uploadFile(
-          {
-            encoding: 'utf-8',
-            buffer: imageBuffer,
-            fieldname: 'image.webp',
-            mimetype: 'image/webp',
-            originalname: latestNews.image_url,
-            size: imageBuffer.length,
-          },
-          { type: MediaType.IMAGE },
-        );
-
-        if (media) {
-          mediaId = media.id;
-        }
-      }
-
-      await this.blogRepository.create({
-        title: latestNews.title,
-        content: latestNews.content,
-        slug: latestNews.slug,
-        topicId: 1,
-        ...(mediaId ? { imageId: mediaId } : {}),
-        userId: 1,
-        isPublished: true,
-      });
-
-      return true;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
   }
 
   async getBlogForSiteMap() {

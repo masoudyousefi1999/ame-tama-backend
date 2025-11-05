@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { BlogRepository } from './blog.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,11 +12,11 @@ import { AiModule } from '../ai/ai.module';
   imports: [
     TypeOrmModule.forFeature([BlogEntity]),
     MediaModule,
-    BlogTopicModule,
+    forwardRef(() => BlogTopicModule),
     AiModule,
   ],
   providers: [BlogService, BlogRepository],
   controllers: [BlogController],
-  exports: [BlogService],
+  exports: [BlogService,BlogRepository],
 })
 export class BlogModule {}

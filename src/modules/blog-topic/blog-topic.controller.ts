@@ -46,8 +46,8 @@ export class BlogTopicController {
     type: BlogTopicDto,
   })
   @ApiParam({ name: 'slug', type: 'string', required: true })
-  async getBlogTopic(@Param('slug') slug: string): Promise<BlogTopicDto> {
-    return await this.blogTopicService.getBlogTopic({ slug });
+  async getBlogTopic(@Param('slug') slug: string, @Query() paginationDto: PaginationDto) {
+    return await this.blogTopicService.getBlogTopic({ slug }, paginationDto);
   }
 
   @Auth([RoleType.ADMIN])
