@@ -86,7 +86,7 @@ export class BlogTopicService {
 
 
     blogs.map((blog) => {
-      blog.topic = blogTopic;
+      blog.topic = blogTopic.toDto() as any;
       normalizedBlogs.push(blog.toDto() as BlogDto);
     });
 
