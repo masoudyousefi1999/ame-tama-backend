@@ -379,12 +379,7 @@ export class ProductService {
       order: { inStock: 'desc', updatedAt: 'desc' },
     });
 
-    const normalizedProducts = products.map((item) => {
-      item.toDto();
-      item.id = item.id as number;
-
-      return item;
-    }) as ProductDto[];
+    const normalizedProducts = products.map((item) => item.toDto()) as ProductDto[];
 
     const finalResponse = { products: normalizedProducts, totalCount: count };
 
