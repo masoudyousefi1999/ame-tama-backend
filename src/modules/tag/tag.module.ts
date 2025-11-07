@@ -8,6 +8,7 @@ import { MediaModule } from '../media/media.module';
 import { CategoryModule } from '../category/category.module';
 import { ProductTagEntity } from './entity/product-tag.entity';
 import { ProductModule } from '../../modules/product/product.module';
+import { SeoModule } from '../seo/seo.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ProductModule } from '../../modules/product/product.module';
     MediaModule,
     CategoryModule,
     ProductModule,
+    SeoModule,
   ],
   providers: [TagService, TagRepository],
   controllers: [TagController],

@@ -7,6 +7,7 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
   UpdateDateColumn,
   type Relation,
 } from 'typeorm';
@@ -18,6 +19,7 @@ import { ProductMediaEntity } from './product-media.entity';
 import { ProductDetailEntity } from '../../../modules/product-detail/entity/product-detail.entity';
 import { CommentEntity } from '../../../modules/comment/entity/comment.entity';
 import { TagEntity } from '../../../modules/tag/entity/tag.entity';
+import type { SeoEntity } from '../../../modules/seo/seo.entity';
 
 @Entity({ name: 'products' })
 @UseDto(ProductDto)
@@ -69,13 +71,15 @@ export class ProductEntity extends AbstractEntity {
   @JoinColumn({ name: 'id', referencedColumnName: 'productId' })
   productMedia?: ProductMediaEntity[];
 
-  @ManyToOne(() => ProductDetailEntity)
+  @OneToOne(() => ProductDetailEntity, (detail) => detail.product)
   @JoinColumn({ name: 'id', referencedColumnName: 'productId' })
-  detail?: Relation<any>;
+  detail?: Relation<ProductDetailEntity>;
 
   @OneToMany(() => CommentEntity, (comment) => comment.product)
   comments!: Relation<CommentEntity[]>;
 
   @ManyToMany(() => TagEntity, (tag) => tag.products)
   tags?: Relation<TagEntity[]>;
+
+  seoMetadata?: Relation<SeoEntity>;
 }

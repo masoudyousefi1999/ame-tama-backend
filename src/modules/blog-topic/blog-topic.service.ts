@@ -16,6 +16,8 @@ import { IsNull, type FindOptionsWhere } from 'typeorm';
 import type { BlogTopicEntity } from './blog-topic.entity';
 import { BlogRepository } from '../../modules/blog/blog.repository';
 import type { BlogDto } from '../../modules/blog/dto/blog.dto';
+import { SeoTypeEnum } from '../seo/seo-type.enum';
+import { SeoService } from '../seo/seo.service';
 
 @Injectable()
 export class BlogTopicService {
@@ -23,6 +25,7 @@ export class BlogTopicService {
     private readonly blogTopicRepository: BlogTopicRepository,
     private readonly mediaService: MediaService,
     private readonly blogRepository: BlogRepository,
+    private readonly seoService: SeoService,
   ) {}
 
   async createBlogTopic(
@@ -57,7 +60,10 @@ export class BlogTopicService {
     return blogTopic.toDto() as BlogTopicDto;
   }
 
-  async getBlogTopic(getBlogTopicDto: GetBlogTopicDto, paginationDto: PaginationDto) {
+  async getBlogTopic(
+    getBlogTopicDto: GetBlogTopicDto,
+    paginationDto: PaginationDto,
+  ) {
     const { uuid, slug } = getBlogTopicDto;
     const { page, limit } = paginationDto;
 
@@ -84,6 +90,8 @@ export class BlogTopicService {
 
     const normalizedBlogs: BlogDto[] = [];
 
+    const topicSeo = await this.getTopicSeo(blogTopic.id);
+    blogTopic.seoMetadata = topicSeo as any;
 
     blogs.map((blog) => {
       blog.topic = blogTopic.toDto() as any;
@@ -186,5 +194,9 @@ export class BlogTopicService {
       relations: ['image', 'blogs', 'blogs.image'],
     });
     return topics;
+  }
+
+  async getTopicSeo(topicId: number) {
+    return await this.seoService.getSeo(SeoTypeEnum.TOPIC, topicId);
   }
 }

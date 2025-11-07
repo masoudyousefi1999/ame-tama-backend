@@ -16,6 +16,7 @@ import { UseDto } from '../../../decorators/use-dto.decorator';
 import { TagDto } from '../dto/tag.dto';
 import { CategoryEntity } from '../../../modules/category/entity/category.entity';
 import { ProductEntity } from '../../product/entity/product.entity';
+import type { SeoEntity } from '../../seo/seo.entity';
 
 @Entity({ name: 'tag' })
 @UseDto(TagDto)
@@ -81,4 +82,6 @@ export class TagEntity extends AbstractEntity {
     },
   })
   products?: Relation<ProductEntity[]>;
+
+  seoMetadata?: Relation<SeoEntity>;
 }

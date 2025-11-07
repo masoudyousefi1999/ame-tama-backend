@@ -7,6 +7,7 @@ import {
   StringFieldOptional,
 } from '../../../decorators/field.decorators';
 import { CategoryEntity } from '../entity/category.entity';
+import { SeoDto } from '../../seo/dto/seo.dto';
 
 export class CategoryDto extends AbstractDto {
   @NumberField()
@@ -27,6 +28,9 @@ export class CategoryDto extends AbstractDto {
   @ClassFieldOptional(() => TagDto)
   tags?: TagDto[];
 
+  @ClassFieldOptional(() => SeoDto)
+  seoMetadata?: SeoDto;
+
   constructor(category: CategoryEntity) {
     super(category);
     this.id = category.id;
@@ -35,5 +39,6 @@ export class CategoryDto extends AbstractDto {
     this.description = category?.description;
     this.image = category?.media?.url;
     this.tags = category?.tags?.map((tag) => new TagDto(tag)) || [];
+    this.seoMetadata = category?.seoMetadata ? new SeoDto(category.seoMetadata) : undefined;
   }
 }

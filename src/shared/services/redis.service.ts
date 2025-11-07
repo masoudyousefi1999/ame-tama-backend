@@ -59,4 +59,38 @@ export class RedisService {
       });
     }
   }
+
+  async getAllCachedData() {
+    const isRedisConnect = this.isConnect;
+    const allData: { key: string; data: string }[] = [];
+    if (!isRedisConnect || !this.cacheManager) {
+      throw new Error('Redis is not connected');
+    }
+
+    const keys = await this.cacheManager.keys('*');
+
+    if (!keys) {
+      return allData;
+    }
+
+    for (const key of keys) {
+      const data = (await this.getCachedData(key)) as string;
+
+      const parsedData = JSON.parse(data);
+
+      if (data) {
+        allData.push({ key, data: parsedData });
+      }
+    }
+    return allData;
+  }
+
+  async deleteAllCachedData() {
+    const isRedisConnect = this.isConnect;
+    if (!isRedisConnect || !this.cacheManager) {
+      throw new Error('Redis is not connected');
+    }
+    await this.cacheManager?.flushAll();
+    return true;
+  }
 }

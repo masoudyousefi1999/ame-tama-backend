@@ -16,7 +16,7 @@ export class RssService {
   ) {}
 
   async createRss(createRssDto: { url: string }) {
-    const rss = await this.rssRepository.create(createRssDto);
+    const rss = this.rssRepository.create(createRssDto);
     await this.rssRepository.save(rss);
 
     return rss;

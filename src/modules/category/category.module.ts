@@ -6,12 +6,14 @@ import { CategoryEntity } from './entity/category.entity';
 import { CategoryRepository } from './category.repository';
 import { MediaModule } from '../../modules/media/media.module';
 import { ProductModule } from '../../modules/product/product.module';
+import { SeoModule } from '../seo/seo.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([CategoryEntity]),
     MediaModule,
     ProductModule,
+    SeoModule,
   ],
   controllers: [CategoryController],
   providers: [CategoryService, CategoryRepository],

@@ -14,6 +14,8 @@ import { ProductTagEntity } from './entity/product-tag.entity';
 import { ProductService } from '../../modules/product/product.service';
 import type { PaginationDto } from 'common/dto/pagination.dto';
 import type { TagDto } from './dto/tag.dto';
+import { SeoService } from '../seo/seo.service';
+import { SeoTypeEnum } from '../seo/seo-type.enum';
 
 @Injectable()
 export class TagService {
@@ -24,6 +26,7 @@ export class TagService {
     @InjectRepository(ProductTagEntity)
     private productTagRepo: Repository<ProductTagEntity>,
     private productService: ProductService,
+    private seoService: SeoService,
   ) {
     // this.transferCategoryToTag();
   }
@@ -93,6 +96,8 @@ export class TagService {
     const { products, totalCount } =
       await this.productService.findProductsByTag(slug, paginationDto);
 
+    const tagSeo = await this.getTagSeo(tag.id);
+    tag.seoMetadata = tagSeo as any;
 
     tag.products = products.map((product) => product.toDto()) as any;
     tag.categories = tag.categories?.map((category) => category.toDto()) as any;
@@ -155,5 +160,9 @@ export class TagService {
     });
 
     return tags.map((tag) => tag.toDto()) as TagDto[];
+  }
+
+  async getTagSeo(tagId: number) {
+    return await this.seoService.getSeo(SeoTypeEnum.TAG, tagId);
   }
 }

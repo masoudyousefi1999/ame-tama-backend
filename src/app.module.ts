@@ -34,6 +34,8 @@ import { BlogModule } from './modules/blog/blog.module';
 import { TagModule } from './modules/tag/tag.module';
 import { AiModule } from './modules/ai/ai.module';
 import { RssModule } from './modules/rss/rss.module';
+import { SeoModule } from './modules/seo/seo.module';
+import { SettingModule } from './modules/setting/setting.module';
 
 @Module({
   imports: [
@@ -104,6 +106,8 @@ import { RssModule } from './modules/rss/rss.module';
     TagModule,
     AiModule,
     RssModule,
+    SeoModule,
+    SettingModule,
   ],
   providers: [],
 })

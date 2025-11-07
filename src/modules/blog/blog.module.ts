@@ -7,6 +7,7 @@ import { BlogController } from './blog.controller';
 import { MediaModule } from '../../modules/media/media.module';
 import { BlogTopicModule } from '../../modules/blog-topic/blog-topic.module';
 import { AiModule } from '../ai/ai.module';
+import { SeoModule } from '../seo/seo.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AiModule } from '../ai/ai.module';
     MediaModule,
     forwardRef(() => BlogTopicModule),
     AiModule,
+    SeoModule,
   ],
   providers: [BlogService, BlogRepository],
   controllers: [BlogController],

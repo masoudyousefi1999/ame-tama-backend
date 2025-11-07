@@ -14,6 +14,7 @@ import { UseDto } from '../../decorators/use-dto.decorator';
 import { BlogTopicDto } from './dto/blog-topic.dto';
 import { BlogEntity } from '../blog/blog.entity';
 import { MediaEntity } from '../media/media.entity';
+import type { SeoEntity } from '../seo/seo.entity';
 
 @Entity({ name: 'blog_topic' })
 @UseDto(BlogTopicDto)
@@ -54,4 +55,6 @@ export class BlogTopicEntity extends AbstractEntity {
   @ManyToOne(() => MediaEntity)
   @JoinColumn({ name: 'image_id', referencedColumnName: 'id' })
   image?: Relation<MediaEntity>;
+
+  seoMetadata?: Relation<SeoEntity>;
 }

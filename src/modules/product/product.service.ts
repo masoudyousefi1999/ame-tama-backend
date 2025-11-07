@@ -24,6 +24,8 @@ import type { SearchDto } from './dto/search-product.dto';
 import { RedisService } from '../../shared/services/redis.service';
 import type { ProductDto } from './dto/product.dto';
 import { ModuleRef } from '@nestjs/core';
+import { SeoService } from '../seo/seo.service';
+import { SeoTypeEnum } from '../seo/seo-type.enum';
 
 @Injectable()
 export class ProductService {
@@ -35,6 +37,7 @@ export class ProductService {
     private productMediaRepo: ProductMediaRepository,
     private productDetailService: ProductDetailService,
     private redisService: RedisService,
+    private seoService: SeoService,
   ) {}
 
   onModuleInit() {
@@ -110,6 +113,10 @@ export class ProductService {
       throw new NotFoundException('product not founded');
     }
 
+    const productSeo = await this.getProductSeo(product.id);
+
+    product.seoMetadata = productSeo as any;
+
     const dto = product.toDto();
 
     // Cache for 1 hour
@@ -134,6 +141,9 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException('product not founded');
     }
+
+    const productSeo = await this.getProductSeo(product.id);
+    product.seoMetadata = productSeo as any;
 
     return product.toDto();
   }
@@ -369,9 +379,12 @@ export class ProductService {
       order: { inStock: 'desc', updatedAt: 'desc' },
     });
 
-    const normalizedProducts = products.map((item) =>
-      item.toDto(),
-    ) as ProductDto[];
+    const normalizedProducts = products.map((item) => {
+      item.toDto();
+      item.id = item.id as number;
+
+      return item;
+    }) as ProductDto[];
 
     const finalResponse = { products: normalizedProducts, totalCount: count };
 
@@ -487,5 +500,9 @@ export class ProductService {
     });
 
     return productDetails;
+  }
+
+  async getProductSeo(productId: number) {
+    return await this.seoService.getSeo(SeoTypeEnum.PRODUCT, productId);
   }
 }

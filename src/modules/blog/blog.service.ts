@@ -23,6 +23,8 @@ import { RoleType } from '../../constants/role-type';
 import { BlogTopicDto } from '../../modules/blog-topic/dto/blog-topic.dto';
 import { BlogTopicEntity } from '../../modules/blog-topic/blog-topic.entity';
 import { ModuleRef } from '@nestjs/core';
+import { SeoTypeEnum } from '../../modules/seo/seo-type.enum';
+import { SeoService } from '../seo/seo.service';
 @Injectable()
 export class BlogService {
   private blogTopicService!: BlogTopicService;
@@ -31,6 +33,7 @@ export class BlogService {
     private readonly blogRepository: BlogRepository,
     private readonly mediaService: MediaService,
     private readonly moduleRef: ModuleRef,
+    private readonly seoService: SeoService,
   ) {}
 
   async onModuleInit() {
@@ -86,6 +89,19 @@ export class BlogService {
         : {}),
     });
 
+    if (blog) {
+      await this.seoService.createSeo({
+        canonicalUrl: `${process.env.FRONT_BASE_URL}/topic/${currentTopic.slug}/${blog.slug}`,
+        entityId: blog.id,
+        entityType: SeoTypeEnum.BLOG,
+        metaTitle: blog.title,
+        metaDescription: blog.content,
+        ogTitle: blog.title,
+        ogImage: image as Uuid,
+        twitterCard: 'summary_large_image',
+      });
+    }
+
     return blog.toDto();
   }
 
@@ -99,6 +115,9 @@ export class BlogService {
     if (!blog) {
       throw new NotFoundException('blog not founded');
     }
+
+    const blogSeo = await this.getBlogSeo(blog.id);
+    blog.seoMetadata = blogSeo as any;
 
     if (blog.topic) {
       (blog as any).topic = new BlogTopicDto(blog.topic);
@@ -268,5 +287,9 @@ export class BlogService {
       relations: ['image'],
     });
     return blogs;
+  }
+
+  async getBlogSeo(blogId: number) {
+    return await this.seoService.getSeo(SeoTypeEnum.BLOG, blogId);
   }
 }

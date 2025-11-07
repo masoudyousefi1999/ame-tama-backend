@@ -6,9 +6,10 @@ import { BlogTopicEntity } from './blog-topic.entity';
 import { BlogTopicRepository } from './blog-topic.repository';
 import { MediaModule } from '../media/media.module';
 import { BlogModule } from '../blog/blog.module';
+import { SeoModule } from '../seo/seo.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BlogTopicEntity]), MediaModule, forwardRef(() => BlogModule)],
+  imports: [TypeOrmModule.forFeature([BlogTopicEntity]), MediaModule, forwardRef(() => BlogModule), SeoModule],
   providers: [BlogTopicService, BlogTopicRepository],
   controllers: [BlogTopicController],
   exports: [BlogTopicService],

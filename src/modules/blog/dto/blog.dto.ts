@@ -10,6 +10,7 @@ import { UserDto } from '../../user/dtos/user.dto';
 import type { BlogTopicDto } from '../../blog-topic/dto/blog-topic.dto';
 import { MediaDto } from '../../media/dtos/media.dto';
 import type { BlogEntity } from '../blog.entity';
+import { SeoDto } from '../../seo/dto/seo.dto';
 
 export class BlogDto extends AbstractDto {
   @StringField()
@@ -35,6 +36,9 @@ export class BlogDto extends AbstractDto {
   @DateField()
   publishedAt?: Date;
 
+  @ClassFieldOptional(() => SeoDto)
+  seoMetadata?: SeoDto;
+
   constructor(blog: BlogEntity) {
     super(blog);
     this.title = blog.title;
@@ -45,5 +49,6 @@ export class BlogDto extends AbstractDto {
     this.image = blog.image ? new MediaDto(blog.image) : undefined;
     this.topic = blog.topic as BlogTopicDto;
     this.slug = blog.slug;
+    this.seoMetadata = blog.seoMetadata ? new SeoDto(blog.seoMetadata) : undefined;
   }
 }

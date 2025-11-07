@@ -14,6 +14,7 @@ import {
 import { CategoryDto } from '../dto/category.dto';
 import { MediaEntity } from '../../../modules/media/media.entity';
 import { TagEntity } from '../../../modules/tag/entity/tag.entity';
+import type { SeoEntity } from '../../seo/seo.entity';
 
 @UseDto(CategoryDto)
 @Entity({ name: 'categories' })
@@ -56,4 +57,6 @@ export class CategoryEntity extends AbstractEntity {
 
   @ManyToMany(() => TagEntity, (tag) => tag.categories)
   tags?: Relation<TagEntity[]>;
+
+  seoMetadata?: Relation<SeoEntity>;
 }

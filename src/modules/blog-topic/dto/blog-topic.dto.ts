@@ -6,6 +6,7 @@ import {
 } from '../../../decorators/field.decorators';
 import type { BlogTopicEntity } from '../blog-topic.entity';
 import { BlogDto } from '../../blog/dto/blog.dto';
+import { SeoDto } from '../../seo/dto/seo.dto';
 
 export class BlogTopicDto extends AbstractDto {
   @StringField()
@@ -23,6 +24,9 @@ export class BlogTopicDto extends AbstractDto {
   @ClassFieldOptional(() => BlogDto, { each: true })
   blogs?: BlogDto[];
 
+  @ClassFieldOptional(() => SeoDto)
+  seoMetadata?: SeoDto;
+
   constructor(blogTopic: BlogTopicEntity) {
     super(blogTopic);
     this.name = blogTopic.name;
@@ -32,5 +36,8 @@ export class BlogTopicDto extends AbstractDto {
     this.blogs = blogTopic?.blogs
       ? blogTopic?.blogs.map((blog) => new BlogDto(blog))
       : [];
+    this.seoMetadata = blogTopic?.seoMetadata
+      ? new SeoDto(blogTopic.seoMetadata)
+      : undefined;
   }
 }

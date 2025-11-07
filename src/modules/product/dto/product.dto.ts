@@ -9,6 +9,7 @@ import type { ProductEntity } from '../entity/product.entity';
 import { ProductMediaDto } from './product-media.dto';
 import { ProductDetailDto } from '../../../modules/product-detail/dto/product-detail.dto';
 import { TagDto } from '../../../modules/tag/dto/tag.dto';
+import { SeoDto } from '../../../modules/seo/dto/seo.dto';
 export class ProductDto extends AbstractDto {
   @StringField()
   name!: string;
@@ -37,6 +38,9 @@ export class ProductDto extends AbstractDto {
   @ClassFieldOptional(() => TagDto, { each: true })
   tags?: TagDto[];
 
+  @ClassFieldOptional(() => SeoDto)
+  seoMetadata?: SeoDto;
+
   constructor(product: ProductEntity) {
     super(product);
     this.name = product.name;
@@ -56,5 +60,8 @@ export class ProductDto extends AbstractDto {
     this.tags = product?.tags
       ? product?.tags.map((item) => new TagDto(item))
       : [];
+    this.seoMetadata = product?.seoMetadata
+      ? new SeoDto(product.seoMetadata)
+      : undefined;
   }
 }

@@ -15,6 +15,8 @@ import type { CategoryDto } from './dto/category.dto';
 import { RedisService } from '../../shared/services/redis.service';
 import { ProductService } from '../../modules/product/product.service';
 import type { PaginationDto } from 'common/dto/pagination.dto';
+import { SeoTypeEnum } from '../seo/seo-type.enum';
+import { SeoService } from '../seo/seo.service';
 
 @Injectable()
 export class CategoryService {
@@ -24,6 +26,7 @@ export class CategoryService {
     private redisService: RedisService,
     @Inject(forwardRef(() => ProductService))
     private productService: ProductService,
+    private seoService: SeoService,
   ) {}
   async create(createCategoryDto: CreateCategoryDto) {
     const { image, parent, ...rest } = createCategoryDto;
@@ -96,6 +99,9 @@ export class CategoryService {
     if (!category) {
       throw new NotFoundException('category not founded');
     }
+
+    const categorySeo = await this.getCategorySeo(category.id);
+    category.seoMetadata = categorySeo as any;
 
     return category.toDto();
   }
@@ -198,5 +204,9 @@ export class CategoryService {
     });
 
     return categories.map((category) => category.toDto()) as CategoryDto[];
+  }
+
+  async getCategorySeo(categoryId: number) {
+    return await this.seoService.getSeo(SeoTypeEnum.CATEGORY, categoryId);
   }
 }
