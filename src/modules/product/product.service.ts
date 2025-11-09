@@ -171,7 +171,7 @@ export class ProductService {
       },
       page: paginationDto.page,
       limit: paginationDto.limit,
-      relations: ['productMedia', 'productMedia.media'],
+      relations: ['productMedia', 'productMedia.media', 'tags'],
       order: { inStock: 'desc', updatedAt: 'desc' },
     });
 
