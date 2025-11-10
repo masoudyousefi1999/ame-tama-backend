@@ -19,6 +19,8 @@ export class ProductRepository extends AbstractRepository<ProductEntity> {
       .leftJoinAndSelect('product.detail', 'detail') // assuming relation
       .leftJoinAndSelect('product.productMedia', 'productMedia') // ProductMedia relation
       .leftJoinAndSelect('productMedia.media', 'media') // Media relation
+      .leftJoinAndSelect('product.category', 'category') // Category relation
+      .leftJoinAndSelect('product.tags', 'tags') // Tags relation
       .where('product.deleted_at IS NULL') // skip soft-deleted products
       .skip((page - 1) * limit)
       .take(limit);

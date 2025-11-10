@@ -59,6 +59,8 @@ export class OrderService {
               'items.product',
               'items.product.productMedia',
               'items.product.productMedia.media',
+              'items.product.category',
+              'items.product.tags',
             ],
           }
         : {}),
@@ -312,6 +314,8 @@ export class OrderService {
         'items.product',
         'items.product.productMedia',
         'items.product.productMedia.media',
+        'items.product.category',
+        'items.product.tags',
         'address',
         'user',
       ],
