@@ -62,6 +62,8 @@ export class ProductRepository extends AbstractRepository<ProductEntity> {
       .leftJoinAndSelect('product.detail', 'detail')
       .leftJoinAndSelect('product.productMedia', 'productMedia')
       .leftJoinAndSelect('productMedia.media', 'media')
+      .leftJoinAndSelect('product.category', 'category') // Category relation
+      .leftJoinAndSelect('product.tags', 'tags')
       .where('product.deletedAt IS NULL')
       .andWhere('product.categoryId = :categoryId', {
         categoryId: currentProduct.categoryId,
