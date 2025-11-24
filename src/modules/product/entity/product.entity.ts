@@ -51,7 +51,7 @@ export class ProductEntity extends AbstractEntity {
   @Column({ type: 'text' })
   slug!: string;
 
-  @Column({ type: 'bigint' })
+  @Column({ type: 'numeric' })
   price!: number;
 
   @Column({ type: 'integer', default: 0 })
@@ -62,6 +62,9 @@ export class ProductEntity extends AbstractEntity {
 
   @Column({ type: 'boolean' })
   inStock!: boolean;
+
+  @Column({ type: 'numeric', nullable: true })
+  discountPrice?: number;
 
   @ManyToOne(() => CategoryEntity)
   @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })

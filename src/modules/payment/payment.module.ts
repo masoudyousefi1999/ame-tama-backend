@@ -7,6 +7,7 @@ import { PaymentRepository } from './payment.repository';
 import { OrderModule } from '../../modules/order/order.module';
 import { WalletModule } from '../../modules/wallet/wallet.module';
 import { TransactionModule } from '../../modules/transaction/transaction.module';
+import { ProductModule } from '../../modules/product/product.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { TransactionModule } from '../../modules/transaction/transaction.module'
     OrderModule,
     WalletModule,
     TransactionModule,
+    ProductModule,
   ],
   providers: [PaymentService, PaymentRepository],
   controllers: [PaymentController],

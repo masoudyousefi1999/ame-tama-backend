@@ -16,6 +16,7 @@ import { WalletService } from '../../modules/wallet/wallet.service';
 import axios from 'axios';
 import { calculateShaparakFees } from './shaparak/shaparak.fee';
 import { SuccessPurchaseSms } from '../../common/utils';
+import { ProductService } from '../../modules/product/product.service';
 
 @Injectable()
 export class PaymentService {
@@ -26,6 +27,7 @@ export class PaymentService {
     private orderService: OrderService,
     private transactionService: TransactionService,
     private walletService: WalletService,
+    private productService: ProductService,
   ) {
     this.isSandBoxMode = process.env.ZARINPAL_SANDBOX == 'true' ? true : false;
   }
@@ -52,7 +54,7 @@ export class PaymentService {
     let totalPrice = 0;
 
     order.items?.forEach(
-      (item) => (totalPrice += Number(item?.product?.price!)),
+      (item) => (totalPrice += Number(this.productService.getProductPrice(item?.product!))),
     );
 
     totalPrice = Math.floor(totalPrice);

@@ -379,7 +379,9 @@ export class ProductService {
       order: { inStock: 'desc', updatedAt: 'desc' },
     });
 
-    const normalizedProducts = products.map((item) => item.toDto()) as ProductDto[];
+    const normalizedProducts = products.map((item) =>
+      item.toDto(),
+    ) as ProductDto[];
 
     const finalResponse = { products: normalizedProducts, totalCount: count };
 
@@ -499,5 +501,11 @@ export class ProductService {
 
   async getProductSeo(productId: number) {
     return await this.seoService.getSeo(SeoTypeEnum.PRODUCT, productId);
+  }
+
+  async getProductPrice(product: ProductEntity) {
+    const price = product.discountPrice ?? product.price;
+
+    return price;
   }
 }

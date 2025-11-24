@@ -26,6 +26,9 @@ export class ProductDto extends AbstractDto {
   @NumberField()
   rating!: number;
 
+  @NumberField()
+  discountPrice?: number;
+
   @ClassFieldOptional(() => ProductDetailDto)
   detail?: ProductDetailDto;
 
@@ -48,6 +51,7 @@ export class ProductDto extends AbstractDto {
     this.price = Number(product.price);
     this.quantity = Number(product.quantity);
     this.rating = product.rating !== undefined ? Number(product.rating) : 0;
+    this.discountPrice = Number(product.discountPrice);
     this.detail = product?.detail
       ? new ProductDetailDto(product.detail)
       : undefined;
