@@ -52,6 +52,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @Auth([RoleType.USER, RoleType.ADMIN])
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Successfully logout' })
   async logout(@Res() res: Response) {
@@ -87,10 +88,10 @@ export class AuthController {
   @ApiOkResponse({ type: Object })
   async getSiteInfo() {
     try {
-        return await this.authService.getSiteInfo();
+      return await this.authService.getSiteInfo();
     } catch (error) {
-        console.error(error);
-        throw new InternalServerErrorException('Failed to get site info');
+      console.error(error);
+      throw new InternalServerErrorException('Failed to get site info');
     }
   }
 }

@@ -25,6 +25,8 @@ import { BlogTopicEntity } from '../../modules/blog-topic/blog-topic.entity';
 import { ModuleRef } from '@nestjs/core';
 import { SeoTypeEnum } from '../../modules/seo/seo-type.enum';
 import { SeoService } from '../seo/seo.service';
+import { RedisService } from '../../shared/services/redis.service';
+import type { Request } from 'express';
 @Injectable()
 export class BlogService {
   private blogTopicService!: BlogTopicService;
@@ -34,6 +36,7 @@ export class BlogService {
     private readonly mediaService: MediaService,
     private readonly moduleRef: ModuleRef,
     private readonly seoService: SeoService,
+    private readonly redisService: RedisService,
   ) {}
 
   async onModuleInit() {
@@ -291,5 +294,36 @@ export class BlogService {
 
   async getBlogSeo(blogId: number) {
     return await this.seoService.getSeo(SeoTypeEnum.BLOG, blogId);
+  }
+
+  async updateBlogViewCount(blogUuid: Uuid, request: Request) {
+    const blog = await this.findOneBlog({ uuid: blogUuid }, []);
+
+    if (!blog) {
+      throw new NotFoundException('blog not founded');
+    }
+
+    const userAgent = request.headers['user-agent'];
+
+    const isUserAlreadyViewed = await this.redisService.getCachedData(
+      `blog:view:${blog.id}:${userAgent}`,
+    );
+
+    if (isUserAlreadyViewed) {
+      return;
+    }
+
+    await this.blogRepository.update({
+      filter: { id: blog.id },
+      updateData: { viewCount: blog.viewCount + 1 },
+    });
+
+    await this.redisService.cacheData(
+      `blog:view:${blog.id}:${userAgent}`,
+      'true',
+      60 * 60,
+    );
+
+    return;
   }
 }

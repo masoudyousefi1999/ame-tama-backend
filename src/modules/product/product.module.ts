@@ -10,6 +10,7 @@ import { ProductMediaEntity } from './entity/product-media.entity';
 import { MediaModule } from '../../modules/media/media.module';
 import { ProductDetailModule } from '../../modules/product-detail/product-detail.module';
 import { SeoModule } from '../seo/seo.module';
+import { TagModule } from '../tag/tag.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { SeoModule } from '../seo/seo.module';
     MediaModule,
     ProductDetailModule,
     SeoModule,
+    TagModule,
   ],
   providers: [ProductService, ProductRepository, ProductMediaRepository],
   controllers: [ProductController],

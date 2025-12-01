@@ -15,5 +15,5 @@ export class CreateTagDto {
   description?: string;
 
   @UUIDFieldOptional()
-  imageId?: Uuid;
+  image?: Uuid;
 }

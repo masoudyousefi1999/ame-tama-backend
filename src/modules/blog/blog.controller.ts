@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { BlogDto } from './dto/blog.dto';
@@ -73,7 +74,7 @@ export class BlogController {
     @Body() updateBlogDto: UpdateBlogDto,
     @AuthUser() user: UserEntity,
   ) {
-    return await this.blogService.updateBlog(uuid, updateBlogDto,user);
+    return await this.blogService.updateBlog(uuid, updateBlogDto, user);
   }
 
   @Delete(':uuid')
@@ -84,5 +85,14 @@ export class BlogController {
   })
   async deleteBlog(@Param('uuid') uuid: Uuid) {
     return await this.blogService.deleteBlog(uuid);
+  }
+
+  @Post(':uuid/view-count')
+  @ApiParam({ name: 'uuid', type: String, required: true })
+  @ApiOkResponse({
+    type: Number,
+  })
+  async getBlogViewCount(@Param('uuid') uuid: Uuid, @Req() request: Request) {
+    return await this.blogService.updateBlogViewCount(uuid, request as any);
   }
 }

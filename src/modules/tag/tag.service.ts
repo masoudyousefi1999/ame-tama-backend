@@ -6,33 +6,34 @@ import {
 import { TagRepository } from './tag.repository';
 import type { CreateTagDto } from './dto/create-tag.dto';
 import { MediaService } from '../../modules/media/media.service';
-import { IsNull, Not, Repository, type FindOptionsWhere } from 'typeorm';
+import { IsNull, type FindOptionsWhere } from 'typeorm';
 import type { TagEntity } from './entity/tag.entity';
-import { CategoryService } from '../category/category.service';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ProductTagEntity } from './entity/product-tag.entity';
 import { ProductService } from '../../modules/product/product.service';
 import type { PaginationDto } from 'common/dto/pagination.dto';
 import type { TagDto } from './dto/tag.dto';
 import { SeoService } from '../seo/seo.service';
 import { SeoTypeEnum } from '../seo/seo-type.enum';
+import { ModuleRef } from '@nestjs/core';
+import type { UpdateTagDto } from './dto/update-tag.dto';
 
 @Injectable()
 export class TagService {
+  private productService!: ProductService;
   constructor(
     private tagRepository: TagRepository,
     private mediaService: MediaService,
-    private categoryService: CategoryService,
-    @InjectRepository(ProductTagEntity)
-    private productTagRepo: Repository<ProductTagEntity>,
-    private productService: ProductService,
     private seoService: SeoService,
-  ) {
-    // this.transferCategoryToTag();
+    private moduleRef: ModuleRef,
+  ) {}
+
+  onModuleInit() {
+    this.productService = this.moduleRef.get(ProductService, {
+      strict: false,
+    });
   }
 
   async createTag(createTagDto: CreateTagDto) {
-    const { imageId, slug, ...rest } = createTagDto;
+    const { image, slug, ...rest } = createTagDto;
 
     const isSlugExist = await this.findOneTag({ slug });
 
@@ -42,8 +43,8 @@ export class TagService {
 
     let currentImageId = null;
 
-    if (imageId) {
-      const media = await this.mediaService.getMedia({ uuid: imageId });
+    if (image) {
+      const media = await this.mediaService.getMedia({ uuid: image });
 
       if (!media) {
         throw new NotFoundException('media not founded');
@@ -107,55 +108,18 @@ export class TagService {
     return { tag: tagDto, totalCount };
   }
 
-  async findOneTag(filter: FindOptionsWhere<TagEntity>) {
+  async findOneTag(filter: FindOptionsWhere<TagEntity>, relations?: string[]) {
     return await this.tagRepository.findOne({
       filter: { ...filter, deletedAt: IsNull() },
+      relations,
     });
-  }
-
-  async transferCategoryToTag() {
-    const { document: tags, count: _ } = await this.tagRepository.find({});
-
-    if (tags.length !== 0) {
-      return;
-    }
-
-    const categories = await this.categoryService.findCategory({
-      parentId: Not(IsNull()),
-    });
-
-    for (const category of categories) {
-      const tag = await this.tagRepository.create({
-        name: category.name,
-        slug: category.slug,
-        description: category.description,
-        imageId: category.image,
-      });
-
-      const products = await this.productService.findProductsByCategoryId(
-        category.id,
-      );
-
-      for (const product of products) {
-        const currentProductTag = this.productTagRepo.create({
-          productId: product.id,
-          tagId: tag.id,
-        });
-
-        await this.productTagRepo.save(currentProductTag);
-
-        await this.productTagRepo.query('update product set category_id = 1;');
-      }
-    }
-
-    return;
   }
 
   async getTagForSiteMap() {
     const { document: tags } = await this.tagRepository.find({
       filter: { deletedAt: IsNull(), categories: { deletedAt: IsNull() } },
       relations: ['image', 'categories'],
-      page:1,
+      page: 1,
       limit: 1000,
     });
 
@@ -164,5 +128,44 @@ export class TagService {
 
   async getTagSeo(tagId: number) {
     return await this.seoService.getSeo(SeoTypeEnum.TAG, tagId);
+  }
+
+  async findOneTagByUuid(uuid: Uuid) {
+    const tag = await this.findOneTag({ uuid }, ['image']);
+
+    if (!tag) {
+      throw new NotFoundException('tag not found');
+    }
+
+    return tag.toDto();
+  }
+
+  async updateTag(uuid: Uuid, updateTagDto: UpdateTagDto) {
+    const tag = await this.findOneTag({ uuid });
+
+    if (!tag) {
+      throw new NotFoundException('tag not found');
+    }
+    const { image, ...rest } = updateTagDto;
+
+    let currentImageId = null;
+
+    if (image) {
+      const media = await this.mediaService.getMedia({ uuid: image });
+      if (!media) {
+        throw new NotFoundException('media not founded');
+      }
+      currentImageId = media;
+    }
+
+    const updated = await this.tagRepository.update({
+      filter: { id: tag.id },
+      updateData: {
+        ...rest,
+        ...(currentImageId && { image: currentImageId }),
+      },
+    });
+
+    return updated?.toDto();
   }
 }

@@ -33,77 +33,87 @@ export class PaymentService {
   }
 
   async create(user: UserEntity) {
-    const order = await this.orderService.findOneOrder(
-      {
-        status: OrderStatusEnum.OPEN,
-        userId: user.id,
-      },
-      ['items', 'items.product'],
-    );
-
-    if (!order) {
-      throw new NotFoundException('order not founded');
-    }
-
-    if (order.items?.length === 0) {
-      throw new BadRequestException(
-        'first add product on to your order then buy.',
+    try {
+      const order = await this.orderService.findOneOrder(
+        {
+          status: OrderStatusEnum.OPEN,
+          userId: user.id,
+        },
+        ['items', 'items.product'],
       );
-    }
 
-    let totalPrice = 0;
+      if (!order) {
+        throw new NotFoundException('order not founded');
+      }
 
-    order.items?.forEach(
-      (item) => (totalPrice += Number(this.productService.getProductPrice(item?.product!))),
-    );
+      if (order.items?.length === 0) {
+        throw new BadRequestException(
+          'first add product on to your order then buy.',
+        );
+      }
 
-    totalPrice = Math.floor(totalPrice);
+      let totalPrice = 0;
 
-    const feeData = {
-      merchant_id: process.env.ZARINPAL_MERCHANT_ID!,
-      amount: Number(totalPrice),
-      currency: 'IRR',
-    };
+      order.items?.forEach(
+        (item) =>
+          (totalPrice += Number(
+            this.productService.getProductPrice(item?.product!),
+          )),
+      );
 
-    const fee = await axios.post(
-      'https://payment.zarinpal.com/pg/v4/payment/feeCalculation.json',
-      feeData,
-    );
+      totalPrice = Math.floor(totalPrice);
 
-    const calculatedFee = fee?.data?.data?.suggested_amount || totalPrice;
+      const feeData = {
+        merchant_id: process.env.ZARINPAL_MERCHANT_ID!,
+        amount: Number(totalPrice),
+        currency: 'IRR',
+      };
 
-    const finalFee = calculateShaparakFees(calculatedFee);
+      const fee = await axios.post(
+        'https://payment.zarinpal.com/pg/v4/payment/feeCalculation.json',
+        feeData,
+      );
 
-    let finalAmount = finalFee?.finalAmount || calculatedFee;
+      const calculatedFee = fee?.data?.data?.suggested_amount || totalPrice;
 
-    finalAmount = Math.floor(finalAmount);
+      const finalFee = calculateShaparakFees(calculatedFee);
 
-    const payment = await this.paymentRepo.create({
-      amount: finalAmount,
-      orderId: order.id,
-      status: PaymentStatusEnum.PENDING,
-    });
+      let finalAmount = finalFee?.finalAmount || calculatedFee;
 
-    const startPay = await this.startPay({
-      amount: finalAmount,
-      phone: user?.phone!,
-    });
+      finalAmount = Math.floor(finalAmount);
 
-    await this.transactionService.createTransaction({
-      amount: finalAmount,
-      method: 'GATEWAY',
-      paymentId: payment?.id,
-      referenceId: startPay?.referenceId! as string,
-    });
-
-    if (payment) {
-      await this.orderService.pendingOrder({
-        orderId: payment.orderId,
-        userId: user.id,
+      const payment = await this.paymentRepo.create({
+        amount: finalAmount,
+        orderId: order.id,
+        status: PaymentStatusEnum.PENDING,
       });
-    }
 
-    return startPay;
+      const startPay = await this.startPay({
+        amount: finalAmount,
+        phone: user?.phone!,
+      });
+
+      await this.transactionService.createTransaction({
+        amount: finalAmount,
+        method: 'GATEWAY',
+        paymentId: payment?.id,
+        referenceId: startPay?.referenceId! as string,
+      });
+
+      if (payment) {
+        await this.orderService.pendingOrder({
+          orderId: payment.orderId,
+          userId: user.id,
+        });
+      }
+
+      return startPay;
+    } catch (error) {
+      console.log(
+        (error as any).response.data.errors || (error as any)?.message,
+      );
+      throw new BadRequestException('transaction failed');
+    }
   }
 
   async startPay({ amount, phone }: { amount: number; phone: string }) {

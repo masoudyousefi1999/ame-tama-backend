@@ -77,8 +77,10 @@ export class OrderController {
   @ApiResponse({ type: [OrderDto] })
   async getOrders(
     @Query('paginationDto') paginationDto: PaginationDto,
+    @Query('status')
+    status: 'confirmed' | 'open',
   ) {
-    return await this.orderService.getOrders(paginationDto);
+    return await this.orderService.getOrders(paginationDto, status);
   }
 
   @Auth([RoleType.ADMIN])

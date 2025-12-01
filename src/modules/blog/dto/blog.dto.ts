@@ -4,6 +4,7 @@ import {
   ClassField,
   ClassFieldOptional,
   DateField,
+  NumberField,
   StringField,
 } from '../../../decorators/field.decorators';
 import { UserDto } from '../../user/dtos/user.dto';
@@ -33,6 +34,9 @@ export class BlogDto extends AbstractDto {
   @BooleanField()
   isPublished!: boolean;
 
+  @NumberField()
+  viewCount!: number;
+
   @DateField()
   publishedAt?: Date;
 
@@ -49,6 +53,9 @@ export class BlogDto extends AbstractDto {
     this.image = blog.image ? new MediaDto(blog.image) : undefined;
     this.topic = blog.topic as BlogTopicDto;
     this.slug = blog.slug;
-    this.seoMetadata = blog.seoMetadata ? new SeoDto(blog.seoMetadata) : undefined;
+    this.seoMetadata = blog.seoMetadata
+      ? new SeoDto(blog.seoMetadata)
+      : undefined;
+    this.viewCount = blog.viewCount;
   }
 }

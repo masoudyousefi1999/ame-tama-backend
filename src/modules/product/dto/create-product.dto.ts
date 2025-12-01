@@ -58,6 +58,10 @@ export class CreateProductDto {
   @UUIDField()
   category!: Uuid;
 
+  @ApiProperty({ type: 'string' })
+  @UUIDField()
+  tag!: Uuid;
+
   @ClassField(() => CreateProductDetailDto)
   productDetail!: CreateProductDetailDto;
 }

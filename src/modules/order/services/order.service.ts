@@ -220,13 +220,17 @@ export class OrderService {
     return { orders: normalizedOrders, totalCount: count };
   }
 
-  async getOrders(paginationDto: PaginationDto) {
+  async getOrders(
+    paginationDto: PaginationDto,
+    status: 'confirmed' | 'open' = 'confirmed',
+  ) {
     const { limit, page } = paginationDto;
     const { document, count } = await this.orderRepo.find({
       limit,
       page,
       filter: {
-        status: Not(OrderStatusEnum.OPEN),
+        status:
+          status === 'open' ? OrderStatusEnum.OPEN : Not(OrderStatusEnum.OPEN),
       },
       relations: [
         'items',
@@ -242,8 +246,14 @@ export class OrderService {
     const normalizedOrders: OrderDto[] = [];
 
     document.map((order) => {
-      const orderDto = order.toDto() as unknown as OrderDto;
-      normalizedOrders.push(orderDto);
+      const isOrderHaveItem = (order?.items?.length || 0) > 0;
+
+      if (isOrderHaveItem) {
+        const orderDto = order.toDto() as unknown as OrderDto;
+        normalizedOrders.push(orderDto);
+      }
+
+      return;
     });
 
     normalizedOrders.map((order) => {

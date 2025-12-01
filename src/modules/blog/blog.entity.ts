@@ -46,6 +46,9 @@ export class BlogEntity extends AbstractEntity<BlogDto> {
   @Column({ type: 'text' })
   slug!: string;
 
+  @Column({ type: 'int', default: 0 })
+  viewCount!: number;
+
   @Column({ type: 'bigint' })
   userId!: number;
 

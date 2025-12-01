@@ -2,6 +2,8 @@ import { PaginationDto } from './../../common/dto/pagination.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -26,6 +28,7 @@ import type { ProductDto } from './dto/product.dto';
 import { ModuleRef } from '@nestjs/core';
 import { SeoService } from '../seo/seo.service';
 import { SeoTypeEnum } from '../seo/seo-type.enum';
+import { TagService } from '../tag/tag.service';
 
 @Injectable()
 export class ProductService {
@@ -38,6 +41,8 @@ export class ProductService {
     private productDetailService: ProductDetailService,
     private redisService: RedisService,
     private seoService: SeoService,
+    @Inject(forwardRef(() => TagService))
+    private tagService: TagService,
   ) {}
 
   onModuleInit() {
@@ -47,9 +52,10 @@ export class ProductService {
   }
 
   async create(CreateProductDto: CreateProductDto) {
-    const { category, productDetail, ...rest } = CreateProductDto;
+    const { category, productDetail, tag, ...rest } = CreateProductDto;
 
     let categoryId = null;
+    let tagId = null;
     let currentCategory: CategoryEntity | null;
 
     if (category) {
@@ -66,9 +72,22 @@ export class ProductService {
       throw new BadRequestException('please send category id.');
     }
 
+    if (tag) {
+      const currentTag = await this.tagService.findOneTag({
+        uuid: tag,
+      });
+
+      if (!currentTag) {
+        throw new NotFoundException('tag not founded');
+      }
+
+      tagId = currentTag;
+    }
+
     const product = await this.productRepo.create({
       ...rest,
       categoryId,
+      ...(tagId ? { tags: [tagId] } : {}),
     });
 
     const { character, series, description, specifications } = productDetail;
@@ -136,6 +155,7 @@ export class ProductService {
       'category',
       'productMedia',
       'productMedia.media',
+      'tags',
     ]);
 
     if (!product) {
@@ -257,83 +277,104 @@ export class ProductService {
   }
 
   async updateProduct(productId: Uuid, updateProductDto: UpdateProductDto) {
-    const { category, productDetail, ...restUpdateData } = updateProductDto;
-    const product = await this.findOneProduct({ uuid: productId });
+    try {
+      const { category, productDetail, tag, ...restUpdateData } =
+        updateProductDto;
+      const product = await this.findOneProduct({ uuid: productId });
 
-    if (!product) {
-      throw new NotFoundException('product not founded');
-    }
-
-    let categoryId = null;
-
-    if (category) {
-      const currentCategory = await this.categoryService.findOneCategory({
-        uuid: category,
-      });
-
-      if (!currentCategory) {
-        throw new NotFoundException('category not founded');
+      if (!product) {
+        throw new NotFoundException('product not founded');
       }
 
-      categoryId = currentCategory.id;
-    }
-    if (productDetail) {
-      let { character, series, description, specifications } = productDetail;
+      let categoryId = null;
 
-      const payload: Record<string, any> = {};
+      if (category) {
+        const currentCategory = await this.categoryService.findOneCategory({
+          uuid: category,
+        });
 
-      if (character) {
-        payload.character = character;
+        if (!currentCategory) {
+          throw new NotFoundException('category not founded');
+        }
+
+        categoryId = currentCategory.id;
       }
-      if (series) {
-        payload.series = series;
-      }
-      if (description) {
-        payload.description = description;
-      }
-      if (specifications) {
-        payload.specifications = specifications?.reduce(
+      if (productDetail) {
+        let { character, series, description, specifications } = productDetail;
+
+        const payload: Record<string, any> = {};
+
+        if (character) {
+          payload.character = character;
+        }
+        if (series) {
+          payload.series = series;
+        }
+        if (description) {
+          payload.description = description;
+        }
+        if (specifications) {
+          payload.specifications = specifications?.reduce(
+            (acc, field) => ({ ...acc, [field.key]: field.value }),
+            {} as Record<string, any>,
+          );
+        }
+
+        const specObject = specifications?.reduce(
           (acc, field) => ({ ...acc, [field.key]: field.value }),
           {} as Record<string, any>,
         );
+
+        const detail = await this.productDetailService.findOne(product.id);
+
+        if (detail) {
+          await this.productDetailService.update({
+            productId: product.id,
+            character,
+            description,
+            series,
+            specifications: specObject,
+          });
+        } else {
+          await this.productDetailService.create({
+            productId: product.id,
+            character,
+            description,
+            series,
+            specifications: specObject,
+          });
+        }
       }
 
-      const specObject = specifications?.reduce(
-        (acc, field) => ({ ...acc, [field.key]: field.value }),
-        {} as Record<string, any>,
-      );
+      let tagId = null;
 
-      const detail = await this.productDetailService.findOne(product.id);
+      if (tag) {
+        const currentTag = await this.tagService.findOneTag({
+          uuid: tag,
+        });
 
-      if (detail) {
-        await this.productDetailService.update({
-          productId: product.id,
-          character,
-          description,
-          series,
-          specifications: specObject,
-        });
-      } else {
-        await this.productDetailService.create({
-          productId: product.id,
-          character,
-          description,
-          series,
-          specifications: specObject,
-        });
+        if (!currentTag) {
+          throw new NotFoundException('tag not founded');
+        }
+
+        tagId = currentTag;
       }
+
+      const updated = await this.productRepo.update({
+        filter: { id: product.id },
+        updateData: {
+          ...restUpdateData,
+          ...(categoryId ? { categoryId: categoryId } : {}),
+          ...(tagId && { tags: [ tagId] }),
+        },
+        relations: ['detail'],
+      });
+
+      return updated?.toDto();
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('product update failed');
     }
-
-    const updated = await this.productRepo.update({
-      filter: { id: product.id },
-      updateData: {
-        ...restUpdateData,
-        ...(categoryId ? { categoryId: categoryId } : {}),
-      },
-      relations: ['detail'],
-    });
-
-    return updated?.toDto();
   }
 
   async removeProduct(productId: Uuid) {
@@ -503,7 +544,7 @@ export class ProductService {
     return await this.seoService.getSeo(SeoTypeEnum.PRODUCT, productId);
   }
 
-  async getProductPrice(product: ProductEntity) {
+  getProductPrice(product: ProductEntity) {
     const price = product.discountPrice ?? product.price;
 
     return price;

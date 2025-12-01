@@ -98,9 +98,9 @@ export abstract class AbstractRepository<T extends AbstractEntity> {
       return null;
     }
 
-    const updateResult = await this.repository.update(filter, updateData);
+    const updateResult = await this.repository.save({ ...isDocumentExists, ...updateData });
 
-    if (updateResult.affected) {
+    if (updateResult) {
       try {
         return await this.findOne({
           filter: { id: isDocumentExists.id as any },

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TagService } from './tag.service';
 import { TagController } from './tag.controller';
 import { TagEntity } from './entity/tag.entity';
@@ -14,12 +14,12 @@ import { SeoModule } from '../seo/seo.module';
   imports: [
     TypeOrmModule.forFeature([TagEntity, ProductTagEntity]),
     MediaModule,
-    CategoryModule,
-    ProductModule,
+    forwardRef(() => CategoryModule),
+    forwardRef(() => ProductModule),
     SeoModule,
   ],
   providers: [TagService, TagRepository],
-  controllers: [TagController],
+  controllers: [TagController], 
   exports: [TagService],
 })
 export class TagModule {}
