@@ -10,6 +10,7 @@ import type { CreateMediaDto } from './dtos/create-media.dto';
 import { MediaRepository } from './media.repository';
 import type { FindOptionsWhere } from 'typeorm';
 import type { MediaEntity } from './media.entity';
+import type { MediaType } from 'constants/media-type';
 
 @Injectable()
 export class MediaService {
@@ -52,5 +53,12 @@ export class MediaService {
 
   async getMedias(filter: FindOptionsWhere<MediaEntity>[]) {
     return await this.mediaRepo.find({ filter });
+  }
+
+  async updateMediaType(mediaUuid: Uuid, mediaType: MediaType) {
+    return await this.mediaRepo.update({
+      filter: { uuid: mediaUuid },
+      updateData: { mediaType },
+    });
   }
 }

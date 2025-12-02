@@ -7,7 +7,7 @@ export class PaginationDto {
   page!: number;
 
   @ApiProperty({ required: false, type: Number, name: 'limit', default: 20 })
-  @NumberFieldOptional({ default: 20, max: 20, min: 1 })
+  @NumberFieldOptional({ default: 20, max: 101, min: 1 })
   limit!: number;
 
   constructor() {

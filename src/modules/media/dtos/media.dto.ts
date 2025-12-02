@@ -1,18 +1,20 @@
 import { getFileUrl } from '../../../common/utils.ts';
 import { AbstractDto } from '../../../common/dto/abstract.dto.ts';
 import {
+  EnumField,
   NumberField,
   StringField,
   StringFieldOptional,
 } from '../../../decorators/field.decorators.ts';
 import { MediaEntity } from '../media.entity.ts';
+import { MediaType } from '../../../constants/media-type.ts';
 
 export class MediaDto extends AbstractDto {
   @StringField()
   fileExtension!: string;
 
-  @NumberField()
-  mediaType!: number;
+  @EnumField(() => MediaType)
+  mediaType!: MediaType;
 
   @NumberField()
   fileSize!: number;

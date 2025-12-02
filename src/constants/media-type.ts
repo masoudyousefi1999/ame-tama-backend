@@ -1,4 +1,8 @@
 export enum MediaType {
-  IMAGE = 1,
-  VIDEO = 2,
+  PRODUCT = 'product',
+  BLOG = 'blog',
+  TOPIC = 'topic',
+  CATEGORY = 'category',
+  TAG = 'tag',
+  USER = 'user',
 }

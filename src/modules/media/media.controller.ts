@@ -1,4 +1,5 @@
 import {
+    BadRequestException,
   Body,
   Controller,
   HttpCode,
@@ -23,13 +24,18 @@ export class MediaController {
   @ApiFile({ name: 'file' })
   @ApiResponse({ type: MediaDto })
   @HttpCode(HttpStatus.OK)
-//   @Auth([RoleType.ADMIN, RoleType.USER])
+  //   @Auth([RoleType.ADMIN, RoleType.USER])
   async uploadFile(
     @UploadedFile() file: IFile,
     @Body() createMediaDto: CreateMediaDto,
   ) {
-    const media = await this.mediaService.uploadFile(file, createMediaDto);
+    try {
+      const media = await this.mediaService.uploadFile(file, createMediaDto);
 
-    return media.toDto();
+      return media.toDto();
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('upload failed please try again.');
+    }
   }
 }

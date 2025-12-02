@@ -5,9 +5,11 @@ import { ProductModule } from '../../modules/product/product.module';
 import { CategoryModule } from '../../modules/category/category.module';
 import { TagModule } from '../../modules/tag/tag.module';
 import { BlogTopicModule } from '../../modules/blog-topic/blog-topic.module';
+import { BlogModule } from '../../modules/blog/blog.module';
+import { MediaModule } from '../../modules/media/media.module';
 
 @Module({
-  imports: [ProductModule, CategoryModule, TagModule, BlogTopicModule],
+  imports: [ProductModule, CategoryModule, TagModule, BlogTopicModule, BlogModule, MediaModule],
   providers: [SiteMapService],
   controllers: [SiteMapController]
 })

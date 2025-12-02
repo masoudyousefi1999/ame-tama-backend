@@ -7,6 +7,10 @@ import type { TagDto } from 'modules/tag/dto/tag.dto';
 import { BlogTopicService } from '../../modules/blog-topic/blog-topic.service';
 import type { BlogEntity } from '../../modules/blog/blog.entity';
 import type { BlogTopicEntity } from '../../modules/blog-topic/blog-topic.entity';
+import { BlogService } from '../../modules/blog/blog.service';
+import { MediaType } from '../../constants/media-type';
+import { AwsS3Service } from '../../shared/services/aws-s3.service';
+import { MediaService } from '../../modules/media/media.service';
 
 @Injectable()
 export class SiteMapService {
@@ -15,6 +19,9 @@ export class SiteMapService {
     private readonly categoryService: CategoryService,
     private readonly tagService: TagService,
     private readonly topicService: BlogTopicService,
+    private readonly blogService: BlogService,
+    private readonly awsS3Service: AwsS3Service,
+    private readonly mediaService: MediaService,
   ) {}
 
   async getSiteMap() {
@@ -164,5 +171,72 @@ export class SiteMapService {
     });
 
     return links;
+  }
+
+  async moveImages() {
+    const products = await this.productService.getProductForSiteMap();
+    const categories = await this.categoryService.getCategoryForSiteMap();
+    const tags = await this.tagService.getTagForSiteMap();
+    const topics = await this.topicService.getTopicForSiteMap();
+    const blogs = await this.blogService.getBlogForSiteMap();
+
+    // product move image
+    for (const product of products) {
+      const productMedia = (product as any).productMedia;
+
+      for (const media of productMedia) {
+        const mediaUrl = media.url;
+
+        const productImageKey = mediaUrl.split('/').pop()?.split('.')[0]!;
+
+        await this.moveImage(productImageKey, MediaType.PRODUCT);
+      }
+    }
+
+    // category move image
+    for (const category of categories) {
+      const categoryImage = category.image;
+
+      if (categoryImage) {
+        const categoryImageKey = categoryImage.split('/').pop()?.split('.')[0]!;
+        await this.moveImage(categoryImageKey, MediaType.CATEGORY);
+      }
+    }
+    // tag move image
+    for (const tag of tags) {
+      const tagImage = tag.image?.url;
+
+      if (tagImage) {
+        const tagImageKey = tagImage.split('/').pop()?.split('.')[0]!;
+        await this.moveImage(tagImageKey, MediaType.TAG);
+      }
+    }
+
+    // topic move image
+    for (const topic of topics) {
+      const topicImage = topic.image?.url;
+
+      if (topicImage) {
+        const topicImageKey = topicImage.split('/').pop()?.split('.')[0]!;
+        await this.moveImage(topicImageKey, MediaType.TOPIC);
+      }
+    }
+
+    // blog move image
+    for (const blog of blogs) {
+      const blogImage = blog.image?.url;
+
+      if (blogImage) {
+        const blogImageKey = blogImage.split('/').pop()?.split('.')[0]!;
+        await this.moveImage(blogImageKey, MediaType.BLOG);
+      }
+    }
+  }
+  async moveImage(key: string, mediaType: MediaType) {
+    const result = await this.awsS3Service.moveImage(key, mediaType);
+
+    if (result) {
+      await this.mediaService.updateMediaType(key as Uuid, mediaType);
+    }
   }
 }

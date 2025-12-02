@@ -1,9 +1,9 @@
-import { S3 } from '@aws-sdk/client-s3';
+import { CopyObjectCommand, DeleteObjectCommand, S3 } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import type { IFile } from './../../interfaces/IFile.ts';
 import { ApiConfigService } from './api-config.service.ts';
 import { GeneratorService } from './generator.service.ts';
-import type { MediaType } from '../../constants/media-type.ts';
+import { MediaType } from '../../constants/media-type.ts';
 import sharp from 'sharp';
 
 @Injectable()
@@ -59,6 +59,35 @@ export class AwsS3Service {
       return { fileName, type, bucketName };
     } catch (error) {
       return { error };
+    }
+  }
+
+  async moveImage(key: string, mediaType: MediaType): Promise<boolean> {
+    try {
+      const newKey = `${mediaType}/${key}.webp`;
+
+      // Copy to new location
+      await this.s3.send(
+        new CopyObjectCommand({
+          Bucket: 'ame-tama',
+          CopySource: `ame-tama/1/${key}.webp`,
+          Key: newKey,
+        }),
+      );
+
+      // Delete old object
+      await this.s3.send(
+        new DeleteObjectCommand({
+          Bucket: 'ame-tama',
+          Key: key,
+        }),
+      );
+
+      console.log(`Moved ${key} to ${newKey}`);
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   }
 }

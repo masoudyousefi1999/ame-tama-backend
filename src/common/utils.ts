@@ -85,7 +85,7 @@ export function getFileUrl(
   fileExtension: string,
 ) {
   if (bucketName && fileName && fileExtension && type) {
-    return `https://${bucketName}.storage.c2.liara.space/1/${fileName}.${fileExtension}`;
+    return `https://${bucketName}.storage.c2.liara.space/${type}/${fileName}.${fileExtension}`;
   }
 
   return undefined;
