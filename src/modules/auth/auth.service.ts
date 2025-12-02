@@ -307,6 +307,8 @@ export class AuthService {
       (SELECT COUNT(*) FROM users) AS total_users,
       (SELECT COUNT(*) FROM comment) AS total_comments,
       (SELECT COUNT(*) FROM products) AS total_products,
+      (SELECT COUNT(*) FROM blog) AS total_blogs,
+      (SELECT COUNT(*) FROM products where quantity > 0) AS total_products_in_stock,
       (SELECT COUNT(*) FROM orders WHERE status != 'open') AS total_orders;
   `;
 
@@ -317,6 +319,8 @@ export class AuthService {
       totalComments: Number(result[0].total_comments),
       totalProducts: Number(result[0].total_products),
       totalOrders: Number(result[0].total_orders),
+      totalProductsInStock: Number(result[0].total_products_in_stock),
+      totalBlogs: Number(result[0].total_blogs),
     };
 
     return infos;
