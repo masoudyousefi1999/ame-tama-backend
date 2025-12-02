@@ -41,7 +41,9 @@ export class AwsS3Service {
     try {
       const fileName = this.generatorService.fileName('webp');
 
-      const key = `${type}/${fileName}`;
+      const isDevelop = process.env.NODE_ENV === 'development';
+
+      const key = `${isDevelop ? 'test' : type}/${fileName}`;
       const bucketName = this.configService.awsS3Config.bucketName;
 
       const webpBuffer = await sharp(file.buffer)

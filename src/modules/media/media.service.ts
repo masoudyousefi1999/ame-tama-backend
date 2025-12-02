@@ -5,12 +5,12 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { AwsS3Service } from '../../shared/services/aws-s3.service';
-import type { IFile } from 'interfaces/IFile';
+import type { IFile } from '../../interfaces/IFile';
 import type { CreateMediaDto } from './dtos/create-media.dto';
 import { MediaRepository } from './media.repository';
 import type { FindOptionsWhere } from 'typeorm';
 import type { MediaEntity } from './media.entity';
-import type { MediaType } from 'constants/media-type';
+import type { MediaType } from '../../constants/media-type';
 
 @Injectable()
 export class MediaService {
@@ -36,10 +36,12 @@ export class MediaService {
     const uuid = splittedFileName[0];
     const fileExtension = 'webp';
 
+    const isDevelop = process.env.NODE_ENV === 'development';
+
     const media = await this.mediaRepo.create({
       uuid,
       bucketName,
-      mediaType: type as any,
+      mediaType: isDevelop ? ('test' as any) : type,
       fileExtension,
       fileSize: file.size,
     });
