@@ -26,7 +26,6 @@ export class TagController {
     type: TagDto,
   })
   async createTag(@Body() createTagDto: CreateTagDto) {
-    console.log('create tag are calling -------------------------------->');
     return await this.tagService.createTag(createTagDto);
   }
 
@@ -35,13 +34,8 @@ export class TagController {
     type: [TagDto],
   })
   async getTags(@Query() paginationDto: PaginationDto) {
-    console.log('tag are calling -------------------------------->');
-    const tags = await this.tagService.findAllTags(paginationDto);
-    console.dir(tags, { depth: null });
-    return tags;
+    return await this.tagService.findAllTags(paginationDto);
   }
-
-
 
   @Get('uuid/:uuid')
   @ApiOkResponse({
@@ -49,7 +43,6 @@ export class TagController {
   })
   @ApiParam({ name: 'uuid', type: String, required: true })
   async findByUuid(@Param('uuid', ParseUUIDPipe) uuid: Uuid) {
-    console.log('find by uuid are calling -------------------------------->');
     return await this.tagService.findOneTagByUuid(uuid);
   }
 
@@ -63,7 +56,6 @@ export class TagController {
     @Param('uuid', ParseUUIDPipe) uuid: Uuid,
     @Body() updateTagDto: UpdateTagDto,
   ) {
-    console.log('update tag are calling -------------------------------->');
     return await this.tagService.updateTag(uuid, updateTagDto);
   }
 }
