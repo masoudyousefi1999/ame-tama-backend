@@ -8,6 +8,7 @@ import { OrderModule } from '../../modules/order/order.module';
 import { WalletModule } from '../../modules/wallet/wallet.module';
 import { TransactionModule } from '../../modules/transaction/transaction.module';
 import { ProductModule } from '../../modules/product/product.module';
+import { ShippingMethodModule } from '../shipping-method/shipping-method.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ProductModule } from '../../modules/product/product.module';
     WalletModule,
     TransactionModule,
     ProductModule,
+    ShippingMethodModule,
   ],
   providers: [PaymentService, PaymentRepository],
   controllers: [PaymentController],

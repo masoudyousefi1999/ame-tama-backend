@@ -45,6 +45,15 @@ export class BlogController {
     return await this.blogService.getBlogs(paginationDto);
   }
 
+  @Get('popular')
+  @ApiQuery({ name: 'paginationDto', type: PaginationDto })
+  @ApiOkResponse({
+    type: [BlogDto],
+  })
+  async getPopularBlogs(@Query() paginationDto: PaginationDto) {
+    return await this.blogService.getPopularBlogs(paginationDto);
+  }
+
   @Get(':slug')
   @ApiOkResponse({
     type: BlogDto,

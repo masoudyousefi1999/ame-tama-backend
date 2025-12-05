@@ -17,6 +17,7 @@ import axios from 'axios';
 import { calculateShaparakFees } from './shaparak/shaparak.fee';
 import { SuccessPurchaseSms } from '../../common/utils';
 import { ProductService } from '../../modules/product/product.service';
+import { ShippingMethodService } from '../../modules/shipping-method/shipping-method.service';
 
 @Injectable()
 export class PaymentService {
@@ -28,6 +29,7 @@ export class PaymentService {
     private transactionService: TransactionService,
     private walletService: WalletService,
     private productService: ProductService,
+    private shippingMethodService: ShippingMethodService,
   ) {
     this.isSandBoxMode = process.env.ZARINPAL_SANDBOX == 'true' ? true : false;
   }
@@ -60,6 +62,14 @@ export class PaymentService {
             this.productService.getProductPrice(item?.product!),
           )),
       );
+
+      // start: adding post method price to total price
+      const shippingMethod =
+        await this.shippingMethodService.getAllShippingMethods();
+      const postMethod = shippingMethod?.[0];
+
+      totalPrice += Number(postMethod?.price) || 0;
+      // end: adding post method price to total price
 
       totalPrice = Math.floor(totalPrice);
 

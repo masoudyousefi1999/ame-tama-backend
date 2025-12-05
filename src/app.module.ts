@@ -36,6 +36,7 @@ import { AiModule } from './modules/ai/ai.module';
 import { RssModule } from './modules/rss/rss.module';
 import { SeoModule } from './modules/seo/seo.module';
 import { SettingModule } from './modules/setting/setting.module';
+import { ShippingMethodModule } from './modules/shipping-method/shipping-method.module';
 
 @Module({
   imports: [
@@ -108,6 +109,7 @@ import { SettingModule } from './modules/setting/setting.module';
     RssModule,
     SeoModule,
     SettingModule,
+    ShippingMethodModule,
   ],
   providers: [],
 })

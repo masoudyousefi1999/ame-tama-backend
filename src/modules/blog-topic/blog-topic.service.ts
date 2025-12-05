@@ -12,7 +12,7 @@ import { MediaService } from '../media/media.service';
 import type { GetBlogTopicDto } from './dto/get-blog-topic.dto';
 import type { PaginationDto } from 'common/dto/pagination.dto';
 import type { UpdateBlogTopicDto } from './dto/update-blog-topic.dto';
-import { IsNull, type FindOptionsWhere } from 'typeorm';
+import { IsNull, Not, type FindOptionsWhere } from 'typeorm';
 import type { BlogTopicEntity } from './blog-topic.entity';
 import { BlogRepository } from '../../modules/blog/blog.repository';
 import type { BlogDto } from '../../modules/blog/dto/blog.dto';
@@ -81,7 +81,11 @@ export class BlogTopicService {
     }
 
     const { document: blogs, count } = await this.blogRepository.find({
-      filter: { topicId: blogTopic.id },
+      filter: {
+        topicId: blogTopic.id,
+        publishedAt: Not(IsNull()),
+        deletedAt: IsNull(),
+      },
       relations: ['image'],
       page,
       limit,

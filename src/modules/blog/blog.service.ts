@@ -139,7 +139,7 @@ export class BlogService {
       relations: ['topic', 'user', 'image'],
       page,
       limit,
-      order: { updatedAt: 'desc' },
+      order: { publishedAt: 'desc' },
     });
 
     const normalizedBlogs: BlogDto[] = [];
@@ -325,5 +325,33 @@ export class BlogService {
     );
 
     return;
+  }
+
+  async getPopularBlogs(paginationDto: PaginationDto) {
+    const { page, limit } = paginationDto;
+
+    const { document: blogs, count } = await this.blogRepository.find({
+      filter: { deletedAt: IsNull(), isPublished: true },
+      relations: ['topic', 'user', 'image'],
+      page,
+      limit,
+      order: { viewCount: 'desc' },
+    });
+
+    const normalizedBlogs: BlogDto[] = [];
+
+    blogs.forEach((blog) => {
+      normalizedBlogs.push(blog.toDto());
+    });
+
+    normalizedBlogs.forEach((blog) => {
+      if (blog.topic) {
+        (blog as any).topic = new BlogTopicDto(
+          blog.topic as unknown as BlogTopicEntity,
+        );
+      }
+    });
+
+    return { blogs: normalizedBlogs, totalCount: count };
   }
 }
