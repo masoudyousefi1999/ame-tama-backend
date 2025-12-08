@@ -37,6 +37,15 @@ export class TagController {
     return await this.tagService.findAllTags(paginationDto);
   }
 
+  @Get(':slug')
+  @ApiOkResponse({
+    type: TagDto,
+  })
+  @ApiParam({ name: 'slug', type: String, required: true })
+  async findBySlug(@Param('slug') slug: string, @Query() paginationDto: PaginationDto) {
+    return await this.tagService.findOneTagBySlug(slug, paginationDto);
+  }
+
   @Get('uuid/:uuid')
   @ApiOkResponse({
     type: TagDto,

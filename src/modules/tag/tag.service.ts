@@ -168,4 +168,21 @@ export class TagService {
 
     return updated?.toDto();
   }
+
+  async findOneTagBySlug(slug: string, paginationDto: PaginationDto) {
+    const { page, limit } = paginationDto;
+    const tag = await this.findOneTag({ slug }, ['image', 'categories', 'categories.media']);
+
+    if (!tag) {
+      throw new NotFoundException('tag not found');
+    }
+
+    const { products: tagProducts, totalCount } =
+      await this.productService.findProductsByTag(slug, { page, limit });
+
+    tag.products = tagProducts.map((product) => product.toDto()) as any;
+    tag.categories = tag.categories?.map((category) => category.toDto()) as any;
+
+    return { tag: tag.toDto(), totalCount };
+  }
 }
