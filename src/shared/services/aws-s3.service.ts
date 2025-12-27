@@ -46,8 +46,10 @@ export class AwsS3Service {
       const key = `${isDevelop ? 'test' : type}/${fileName}`;
       const bucketName = this.configService.awsS3Config.bucketName;
 
+      const quality = type === MediaType.BLOG ? 65 : 75
+
       const webpBuffer = await sharp(file.buffer)
-        .webp({ quality: 80 }) // adjust quality between 1-100
+        .webp({ quality }) // adjust quality between 1-100
         .toBuffer();
 
       // for now because we don't have a good server we must do this for icons
