@@ -1,4 +1,4 @@
-import { CopyObjectCommand, DeleteObjectCommand, S3 } from '@aws-sdk/client-s3';
+import { S3 } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import type { IFile } from './../../interfaces/IFile.ts';
 import { ApiConfigService } from './api-config.service.ts';
@@ -50,6 +50,20 @@ export class AwsS3Service {
         .webp({ quality: 80 }) // adjust quality between 1-100
         .toBuffer();
 
+      // for now because we don't have a good server we must do this for icons
+
+      const thumbnailBuffer = await sharp(file.buffer)
+        .webp({ quality: 40, preset: 'icon' })
+        .toBuffer();
+
+      await this.s3.putObject({
+        Bucket: bucketName,
+        Body: thumbnailBuffer,
+        ACL: 'public-read',
+        Key: `thumbnail/${key}`,
+        ContentType: 'image/webp',
+      });
+
       await this.s3.putObject({
         Bucket: bucketName,
         Body: webpBuffer,
@@ -61,35 +75,6 @@ export class AwsS3Service {
       return { fileName, type, bucketName };
     } catch (error) {
       return { error };
-    }
-  }
-
-  async moveImage(key: string, mediaType: MediaType): Promise<boolean> {
-    try {
-      const newKey = `${mediaType}/${key}.webp`;
-
-      // Copy to new location
-      await this.s3.send(
-        new CopyObjectCommand({
-          Bucket: 'ame-tama',
-          CopySource: `ame-tama/1/${key}.webp`,
-          Key: newKey,
-        }),
-      );
-
-      // Delete old object
-      await this.s3.send(
-        new DeleteObjectCommand({
-          Bucket: 'ame-tama',
-          Key: key,
-        }),
-      );
-
-      console.log(`Moved ${key} to ${newKey}`);
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
     }
   }
 }

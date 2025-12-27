@@ -1,9 +1,6 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { SiteMapService } from './site-map.service';
 import type { Response } from 'express';
-import { ApiOkResponse } from '@nestjs/swagger';
-import { Auth } from '../../decorators/http.decorators';
-import { RoleType } from '../../constants/role-type';
 
 @Controller('sitemap')
 export class SiteMapController {
@@ -37,15 +34,5 @@ ${links
 
     res.header('Content-Type', 'application/xml');
     res.send(xml);
-  }
-
-  @Get('move-images')
-  @Auth([RoleType.ADMIN])
-  @ApiOkResponse({
-    type: Boolean,
-  })
-  async moveImages() {
-    await this.siteMapService.moveImages();
-    return true;
   }
 }
