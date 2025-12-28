@@ -37,6 +37,7 @@ import { RssModule } from './modules/rss/rss.module';
 import { SeoModule } from './modules/seo/seo.module';
 import { SettingModule } from './modules/setting/setting.module';
 import { ShippingMethodModule } from './modules/shipping-method/shipping-method.module';
+import { ArtWorkModule } from './modules/art-work/art-work.module.ts';
 
 @Module({
   imports: [
@@ -110,6 +111,7 @@ import { ShippingMethodModule } from './modules/shipping-method/shipping-method.
     SeoModule,
     SettingModule,
     ShippingMethodModule,
+    ArtWorkModule,
   ],
   providers: [],
 })

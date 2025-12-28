@@ -303,14 +303,16 @@ export class BlogService {
       throw new NotFoundException('blog not founded');
     }
 
-    const userAgent = request.headers['user-agent'];
+    const userAgent = request.headers['user-agent'] || request.ip;
 
-    const isUserAlreadyViewed = await this.redisService.getCachedData(
-      `blog:view:${blog.id}:${userAgent}`,
-    );
+    if (userAgent) {
+      const isUserAlreadyViewed = await this.redisService.getCachedData(
+        `blog:view:${blogUuid}:${userAgent}`,
+      );
 
-    if (isUserAlreadyViewed) {
-      return;
+      if (isUserAlreadyViewed) {
+        return;
+      }
     }
 
     await this.blogRepository.update({
@@ -318,11 +320,13 @@ export class BlogService {
       updateData: { viewCount: blog.viewCount + 1 },
     });
 
-    await this.redisService.cacheData(
-      `blog:view:${blog.id}:${userAgent}`,
-      'true',
-      60 * 60,
-    );
+    if (userAgent) {
+      await this.redisService.cacheData(
+        `blog:view:${blogUuid}:${userAgent}`,
+        'true',
+        60 * 60,
+      );
+    }
 
     return;
   }

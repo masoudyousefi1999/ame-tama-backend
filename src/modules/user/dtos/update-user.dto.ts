@@ -6,10 +6,10 @@ import {
 
 export class UpdateUserDto {
   @StringFieldOptional()
-  first_name?: string;
+  firstName?: string;
 
   @StringFieldOptional()
-  last_name?: string;
+  lastName?: string;
 
   @EmailFieldOptional()
   email?: string;

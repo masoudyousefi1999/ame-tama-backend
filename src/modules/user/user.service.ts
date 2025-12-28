@@ -48,7 +48,8 @@ export class UserService {
   }
 
   async updateUser(user: UserEntity, updateUserDto: UpdateUserDto) {
-    const { avatar, ...rest } = updateUserDto;
+    const { avatar, firstName, lastName } = updateUserDto;
+    let email = updateUserDto.email;
     let avatar_id = null;
 
     if (avatar) {
@@ -63,13 +64,17 @@ export class UserService {
       avatar_id = media.id;
     }
 
+    if (user.email) {
+      email = undefined;
+    }
+
     const updatedUser = await this.userRepository.update({
       filter: { id: user.id },
       updateData: {
-        avatar: avatar_id,
-        firstName: rest.first_name,
-        lastName: rest.last_name,
-        email: rest.email,
+        ...(avatar_id && { avatar: avatar_id }),
+        ...(firstName && { firstName: firstName }),
+        ...(lastName && { lastName: lastName }),
+        ...(email && { email }),
       },
     });
 

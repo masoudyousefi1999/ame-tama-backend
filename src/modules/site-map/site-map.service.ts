@@ -162,7 +162,14 @@ export class SiteMapService {
       priority: 1,
     });
 
+    // art work page
+    links.push({
+      url: `${baseUrl}art-work`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    });
+
     return links;
   }
-
 }

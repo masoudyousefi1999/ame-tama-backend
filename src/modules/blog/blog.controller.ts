@@ -19,6 +19,7 @@ import { Auth } from '../../decorators/http.decorators';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { RoleType } from '../../constants/role-type';
+import type { Request } from 'express';
 
 @Controller('blog')
 export class BlogController {
