@@ -48,7 +48,7 @@ export class UserService {
   }
 
   async updateUser(user: UserEntity, updateUserDto: UpdateUserDto) {
-    const { avatar, firstName, lastName } = updateUserDto;
+    const { avatar, first_name, last_name } = updateUserDto;
     let email = updateUserDto.email;
     let avatar_id = null;
 
@@ -72,8 +72,8 @@ export class UserService {
       filter: { id: user.id },
       updateData: {
         ...(avatar_id && { avatar: avatar_id }),
-        ...(firstName && { firstName: firstName }),
-        ...(lastName && { lastName: lastName }),
+        ...(first_name && { firstName: first_name }),
+        ...(last_name && { lastName: last_name }),
         ...(email && { email }),
       },
     });
