@@ -60,21 +60,7 @@ export class AwsS3Service {
         </style>
         <text x="50" y="200" class="text">© AME-TAMA</text>
       </svg>
-      `;
-      
-
-const thumbnailWatermarkSvg = `
-<svg width="300" height="80">
-  <style>
-    .text {
-      fill: rgba(255,255,255,0.4);
-      font-size: 22px;
-      font-family: Arial, sans-serif;
-    }
-  </style>
-  <text x="0" y="30" class="text">©ame-tama</text>
-</svg>
-`;
+      `;      
 
       const webpBuffer = await sharp(file.buffer).composite([
         {
@@ -87,13 +73,8 @@ const thumbnailWatermarkSvg = `
 
       // for now because we don't have a good server we must do this for icons
 
-      const thumbnailBuffer = await sharp(file.buffer).composite([
-        {
-          input: Buffer.from(thumbnailWatermarkSvg),
-          gravity: 'southwest',
-        },
-      ])
-        .webp({ quality: 40, preset: 'icon' })
+      const thumbnailBuffer = await sharp(file.buffer)
+        .webp({ quality: 40, preset: 'icon'}).resize(568, 568)
         .toBuffer();
 
       await this.s3.putObject({

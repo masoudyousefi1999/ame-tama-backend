@@ -58,8 +58,17 @@ export class ProductDto extends AbstractDto {
     this.category = product?.category
       ? new CategoryDto(product.category)
       : undefined;
-    this.productMedia = product?.productMedia
-      ? product?.productMedia.map((item) => new ProductMediaDto(item))
+      this.productMedia = product?.productMedia
+      ? product?.productMedia
+          .map((item) => new ProductMediaDto(item))
+          .sort((a, b) => {
+            // Sort by isDefault (true first)
+            if (a.isDefault === b.isDefault) {
+              // If both have the same isDefault value, sort by order number
+              return a.order - b.order;
+            }
+            return a.isDefault ? -1 : 1; // 'true' should come first
+          })
       : [];
     this.tags = product?.tags
       ? product?.tags.map((item) => new TagDto(item))
