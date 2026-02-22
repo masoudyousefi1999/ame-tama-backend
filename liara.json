@@ -1,8 +1,0 @@
-{
-  "app": "ame-tama-backend",
-  "port": 5000,
-  "build": {
-    "location": "iran"
-  },
-  "disks": []
-}
