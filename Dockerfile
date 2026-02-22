@@ -1,32 +1,36 @@
-FROM node:lts AS dist
+# ----------------------------- creating dependencies -----------------------------
+
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+
 COPY package.json yarn.lock ./
 
-RUN yarn install
+RUN yarn install --frozen-lockFile
 
-COPY . ./
+# ----------------------------- building project     -----------------------------
 
-RUN yarn build:prod
+FROM node:20-alpine AS builder 
 
-FROM node:lts AS node_modules
-COPY package.json yarn.lock ./
+WORKDIR /app
 
-RUN yarn install --prod
+COPY --from=deps /app/node_modules ./node_modules
 
-FROM node:lts
+COPY . .
 
-ARG PORT=3000
+RUN yarn build
+# ----------------------------- running  project     -----------------------------
+
+FROM node:20-alpine AS runner
+
+WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN mkdir -p /usr/src/app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
 
-WORKDIR /usr/src/app
 
-COPY --from=dist dist /usr/src/app/dist
-COPY --from=node_modules node_modules /usr/src/app/node_modules
+EXPOSE 5000
 
-COPY . /usr/src/app
-
-EXPOSE $PORT
-
-CMD [ "yarn", "start:prod" ]
+CMD ["node", "dist/main.js"]
