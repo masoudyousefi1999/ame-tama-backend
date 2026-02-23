@@ -29,7 +29,7 @@ ENV NODE_ENV=production
 COPY --from=builder /app/dist ./dist
 COPY package.json yarn.lock ./
 
-RUN yarn add --frozen-lockfile --production
+RUN yarn --frozen-lockfile --prod
 
 EXPOSE 5000
 
