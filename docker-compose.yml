@@ -20,6 +20,6 @@ networks:
   private-network:
     name: private-network
   public-network:
-    name: public-network
+    external: true
   db-network:
     external: true
