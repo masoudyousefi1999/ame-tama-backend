@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 
-RUN yarn install --frozen-lockfile --ignore-scripts=false
+RUN yarn add --frozen-lockfile --ignore-scripts=false
 # ----------------------------- building project     -----------------------------
 
 FROM node:20-bullseye-slim AS builder 
@@ -29,7 +29,7 @@ ENV NODE_ENV=production
 COPY --from=builder /app/dist ./dist
 COPY package.json yarn.lock ./
 
-RUN yarn install --frozen-lockfile --production
+RUN yarn add --frozen-lockfile --production
 
 EXPOSE 5000
 
