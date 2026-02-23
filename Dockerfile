@@ -1,6 +1,6 @@
 # ----------------------------- creating dependencies -----------------------------
 
-FROM node:20-alpine AS deps
+FROM node:20-bullseye-slim AS deps
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile --ignore-scripts=false
 # ----------------------------- building project     -----------------------------
 
-FROM node:20-alpine AS builder 
+FROM node:20-bullseye-slim AS builder 
 
 WORKDIR /app
 
@@ -20,15 +20,16 @@ COPY . .
 RUN yarn build
 # ----------------------------- running  project     -----------------------------
 
-FROM node:20-alpine AS runner
+FROM node:20-bullseye-slim AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
+COPY package.json yarn.lock ./
 
+RUN yarn install --frozen-lockfile --production
 
 EXPOSE 5000
 
