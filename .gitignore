@@ -85,6 +85,7 @@ db-data
 
 # Local History
 .history
+.swc/
 
 # VuePress default temp directory
 .vuepress/.temp
