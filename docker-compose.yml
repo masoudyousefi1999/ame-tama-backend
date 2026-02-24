@@ -6,8 +6,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - '5000:5000'
     restart: unless-stopped
     env_file:
       - .env
@@ -15,6 +13,12 @@ services:
       - private-network
       - db-network
       - public-network
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.backend.rule=Host(`api.ame-tama.com`)'
+      - 'traefik.http.routers.backend.entrypoints=websecure'
+      - 'traefik.http.routers.backend.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.backend.loadbalancer.server.port=5000'
 
 networks:
   private-network:
