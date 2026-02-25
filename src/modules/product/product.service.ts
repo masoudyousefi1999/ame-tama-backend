@@ -117,6 +117,8 @@ export class ProductService {
       await this.redisService.getCachedData(productCacheKey);
 
     if (cachedProduct) {
+      this.updateProductViewCount(slug);
+
       return JSON.parse(cachedProduct);
     }
 
@@ -145,6 +147,8 @@ export class ProductService {
       JSON.stringify(dto),
       oneHourInSec,
     );
+
+    this.updateProductViewCount(slug);
 
     return dto;
   }
@@ -365,7 +369,7 @@ export class ProductService {
         updateData: {
           ...restUpdateData,
           ...(categoryId ? { categoryId: categoryId } : {}),
-          ...(tagId && { tags: [ tagId] }),
+          ...(tagId && { tags: [tagId] }),
         },
         relations: ['detail'],
       });
@@ -548,5 +552,23 @@ export class ProductService {
     const price = product.discountPrice ?? product.price;
 
     return price;
+  }
+
+  updateProductViewCount(slug: string) {
+    setImmediate(async () => {
+      try {
+        const prod = await this.productRepo.findOne({ filter: { slug } });
+
+        if (prod) {
+          // تعداد بازدید را افزایش می‌دهیم
+          await this.productRepo.update({
+            filter: { id: prod.id },
+            updateData: { viewCount: prod.viewCount + 1 },
+          });
+        }
+      } catch (e) {
+        console.error('Error updating view count in background', e);
+      }
+    });
   }
 }

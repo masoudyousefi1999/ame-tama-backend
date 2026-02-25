@@ -60,21 +60,29 @@ export class AwsS3Service {
         </style>
         <text x="50" y="200" class="text">© AME-TAMA</text>
       </svg>
-      `;      
+      `;
 
-      const webpBuffer = await sharp(file.buffer).composite([
-        {
-          input: Buffer.from(watermarkSvg),
-          gravity: 'southwest',
-        },
-      ])
-        .webp({ quality })
-        .toBuffer();
+      let webpBuffer = null;
+
+      if (type === MediaType.PRODUCT) {
+        await sharp(file.buffer)
+          .composite([
+            {
+              input: Buffer.from(watermarkSvg),
+              gravity: 'southwest',
+            },
+          ])
+          .webp({ quality })
+          .toBuffer();
+      } else {
+        await sharp(file.buffer).webp({ quality }).toBuffer();
+      }
 
       // for now because we don't have a good server we must do this for icons
 
       const thumbnailBuffer = await sharp(file.buffer)
-        .webp({ quality: 40, preset: 'icon'}).resize(568, 568)
+        .webp({ quality: 40, preset: 'icon' })
+        .resize(568, 568)
         .toBuffer();
 
       await this.s3.putObject({
@@ -87,7 +95,7 @@ export class AwsS3Service {
 
       await this.s3.putObject({
         Bucket: bucketName,
-        Body: webpBuffer,
+        Body: webpBuffer!,
         ACL: 'public-read',
         Key: key,
         ContentType: 'image/webp',
@@ -95,7 +103,7 @@ export class AwsS3Service {
 
       return { fileName, type, bucketName };
     } catch (error) {
-        console.log(error);
+      console.log(error);
       return { error };
     }
   }

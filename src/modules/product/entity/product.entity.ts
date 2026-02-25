@@ -85,4 +85,7 @@ export class ProductEntity extends AbstractEntity {
   tags?: Relation<TagEntity[]>;
 
   seoMetadata?: Relation<SeoEntity>;
+
+  @Column({ type: 'integer', default: 0, name: 'view_count' })
+  viewCount!: number;
 }
