@@ -29,7 +29,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY --from=builder /app/dist ./dist
-COPY --from=deps /app/node_modules ./node_modules
+COPY package.json yarn.lock ./
+
+RUN yarn --frozen-lockfile --prod
 
 EXPOSE 5000
 
