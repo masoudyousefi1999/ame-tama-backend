@@ -65,7 +65,7 @@ export class AwsS3Service {
       let webpBuffer = null;
 
       if (type === MediaType.PRODUCT) {
-        await sharp(file.buffer)
+        webpBuffer = await sharp(file.buffer)
           .composite([
             {
               input: Buffer.from(watermarkSvg),
@@ -75,7 +75,7 @@ export class AwsS3Service {
           .webp({ quality })
           .toBuffer();
       } else {
-        await sharp(file.buffer).webp({ quality }).toBuffer();
+        webpBuffer = await sharp(file.buffer).webp({ quality }).toBuffer();
       }
 
       // for now because we don't have a good server we must do this for icons

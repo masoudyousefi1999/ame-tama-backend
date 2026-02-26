@@ -84,8 +84,13 @@ export function getFileUrl(
   bucketName: string,
   fileExtension: string,
 ) {
+  //              liara
+  // if (bucketName && fileName && fileExtension && type) {
+  //   return `https://${bucketName}.storage.c2.liara.space/${type}/${fileName}.${fileExtension}`;
+  // }
+
   if (bucketName && fileName && fileExtension && type) {
-    return `https://${bucketName}.storage.c2.liara.space/${type}/${fileName}.${fileExtension}`;
+    return `https://${bucketName}.hot.ir-central1.arvanstorage.ir/${type}%2F${fileName}.${fileExtension}`;
   }
 
   return undefined;

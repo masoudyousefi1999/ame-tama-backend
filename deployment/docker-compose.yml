@@ -1,17 +1,20 @@
-version: '3.9'
+networks:
+  private-network:
+    external: true
+  public-network:
+    external: true
 
 services:
   backend:
     container_name: backend
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
-      - .env
+      - ../.env
     networks:
       - private-network
-      - db-network
       - public-network
     labels:
       - 'traefik.enable=true'
@@ -19,11 +22,3 @@ services:
       - 'traefik.http.routers.backend.entrypoints=websecure'
       - 'traefik.http.routers.backend.tls.certresolver=letsencrypt'
       - 'traefik.http.services.backend.loadbalancer.server.port=5000'
-
-networks:
-  private-network:
-    name: private-network
-  public-network:
-    external: true
-  db-network:
-    external: true

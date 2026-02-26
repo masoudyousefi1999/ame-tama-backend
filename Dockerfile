@@ -6,6 +6,8 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 
+RUN yarn config set registry https://package-mirror.liara.ir/repository/npm/
+
 RUN yarn add --frozen-lockfile --ignore-scripts=false
 # ----------------------------- building project     -----------------------------
 
