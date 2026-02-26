@@ -18,6 +18,7 @@ services:
       - public-network
     labels:
       - 'traefik.enable=true'
+      - 'traefik.docker.network=public-network'
       - 'traefik.http.routers.backend.rule=Host(`api.ame-tama.com`)'
       - 'traefik.http.routers.backend.entrypoints=websecure'
       - 'traefik.http.routers.backend.tls.certresolver=letsencrypt'
