@@ -14,7 +14,6 @@ services:
     env_file:
       - ../.env
     networks:
-      - private-network
       - public-network
     labels:
       - 'traefik.enable=true'
