@@ -1,6 +1,4 @@
 networks:
-  private-network:
-    external: true
   public-network:
     external: true
 
